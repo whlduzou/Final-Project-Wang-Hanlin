@@ -1,0 +1,395 @@
+---
+title: "Moltilevel Model"
+output: pdf_document
+---
+
+```{r global_options, echo=FALSE, message=FALSE, warning=FALSE,include=FALSE, results='hide'}
+knitr::opts_chunk$set(
+  fig.width=8, fig.height=8,
+  echo=FALSE, warning=FALSE, message=FALSE
+  )
+```
+
+
+```{r library}
+options (warn = -1)
+rm(list = ls())
+library(dplyr)
+library(epidemia)
+library(rstanarm)
+library(httr)
+library(jsonlite)
+library(Hmisc)
+library(knitr)
+library(lubridate)
+library(ggplot2)
+library(tidyverse)
+extrafont::loadfonts()
+
+setwd("/Users/wanghanlin/Desktop/final project")
+temperature <- read.csv("temperature.csv")
+protest <- read.csv("protest.csv")
+protest$week <- as.Date(protest$week)
+
+temperature$date <- as.Date(temperature$date)
+temp <- seq.Date(from = as.Date("2020/01/05",format = "%Y/%m/%d"), by = "day", length.out = as.numeric(difftime("2021-06-06", "2020-01-05")))
+protest.new <- data.frame(date <- temp)
+colnames(protest.new) <- c("date")
+protest.new$protest <- -1
+for (i in row.names(protest.new)) {
+  date <- as.Date(protest.new$date[as.numeric(i)])
+  for (j in row.names(protest)) {
+    if (date == as.Date(protest$week[as.numeric(j)])) {
+      protest.new[i, "protest"] <- protest$protest[as.numeric(j)]
+      break
+    } else {
+      protest.new[i, "protest"] <- NA
+    }
+  }
+}
+protest <- protest.new
+rm(protest.new)
+for (i in row.names(protest)) {
+  i <- as.numeric(i)
+  date <- protest$date[i]
+  if (is.na(protest$protest[i])) {
+    posterior.date <- protest$date[nrow(protest)]
+    posterior.protest <- former.protest
+    for (j in (i+1: nrow(protest))) {
+      if (is.na(protest$protest[j]) == FALSE) {
+        posterior.date <- protest$date[j]
+        posterior.protest <- protest$protest[j]
+        break
+      }
+    }
+    former.diff.day <- abs(as.numeric(difftime(former.date, date)))
+    posterior.diff.day <- abs(as.numeric(difftime(posterior.date, date)))
+    protest[i, "protest"] <- (
+      former.protest * posterior.diff.day
+      + posterior.protest * former.diff.day
+      )/(former.diff.day + posterior.diff.day)
+  } else {
+    former.date <- date
+    former.protest <- protest$protest[i]
+  }
+}
+
+download.data <- function() {
+  # API request
+  AREA_TYPE = "overview"
+
+  endpoint <- "https://coronavirus.data.gov.uk/api/v1/data"
+
+  # Create filters:
+  filters <- c(
+    sprintf("areaType=%s", AREA_TYPE)
+  )
+
+  # Create the structure as a list or a list of lists:
+  structure <- list(
+      Nation = "areaName",
+      date = "date", 
+      cases = "newCasesByPublishDate",
+      cumulativeCases = "cumCasesByPublishDate",
+      deaths = "newDeaths28DaysByDeathDate", 
+      cumulativeDeaths = "cumDeaths28DaysByPublishDate",
+      # cumDailyNsoDeathsByDeathDate
+      # Patients in hospital
+      hospital = "hospitalCases",
+      ventilationbeds = "covidOccupiedMVBeds",
+      newfirstVaccination = "newPeopleVaccinatedFirstDoseByPublishDate",
+      cumfirstVaccination = "cumPeopleVaccinatedFirstDoseByPublishDate",
+      newsecondVaccination = "newPeopleVaccinatedSecondDoseByPublishDate",
+      cumsecondVaccination = "cumPeopleVaccinatedSecondDoseByPublishDate"
+  )
+
+  response <- GET(
+    url = endpoint,
+    query = list(
+          filters = paste(filters, collapse = ";"),
+          structure = jsonlite::toJSON(structure, auto_unbox = TRUE)
+      ),
+    content_type("application/json"),
+    timeout(10)
+  ) 
+
+  # Handle errors:
+  if (response$status_code >= 400) {
+      err_msg = httr::http_status(response)
+      stop(err_msg)
+  }
+
+  # Convert response from binary to JSON:
+  json_text <- content(response, "text")
+  data      <- fromJSON(json_text)$data
+  data$pop <- pop <-  56286961
+  data$date <- as.Date(data$date)
+  rownames(data) <- data$date
+  for (d in row.names(data)) {
+    differ = as.numeric(difftime(d, '2020-12-8'))
+    if (differ < 0) {
+      data[
+        d, c(
+          "newfirstVaccination", "cumfirstVaccination",
+          "newsecondVaccination", "cumsecondVaccination"
+          )] <- c(0,0,0,0)
+    }
+  }
+  for (d in row.names(data)) {
+    if (is.na(data[d, "cumfirstVaccination"])) {
+      differ.all = as.numeric(difftime('2021-01-10', '2020-12-7'))
+      differ = as.numeric(difftime(d, '2020-12-7'))
+      cum <- data['2021-01-10', "cumfirstVaccination"] / differ.all
+      data[d, "cumfirstVaccination"] <- round(cum * differ)
+    }
+  }
+  for (d in row.names(data)) {
+    if (is.na(data[d, "newfirstVaccination"])) {
+      cum <- data[d, "cumfirstVaccination"]
+      x <- ymd(d)
+      day(x) <- day(d) - 1
+      x <- as.character(x)
+      data[d, "newfirstVaccination"] <- cum - data[x, "cumfirstVaccination"]
+    }
+  }
+  for (d in row.names(data)) {
+    if (is.na(data[d, "cumsecondVaccination"])) {
+      if (difftime(d, '2021-01-04') > 0) {
+        differ.all = as.numeric(difftime('2021-01-10', '2021-01-04'))
+        differ = as.numeric(difftime(d, '2021-01-04'))
+        cum <- data['2021-01-10', "cumsecondVaccination"] / differ.all
+        data[d, "cumsecondVaccination"] <- round(cum * differ)
+      } else {
+        data[d, "cumsecondVaccination"] <- 0
+      }
+    }
+  }
+  for (d in row.names(data)) {
+    if (is.na(data[d, "newsecondVaccination"])) {
+      cum <- data[d, "cumsecondVaccination"]
+      x <- ymd(d)
+      day(x) <- day(d) - 1
+      x <- as.character(x)
+      data[
+        d, "newsecondVaccination"
+        ] <- cum - data[x, "cumsecondVaccination"]
+    }
+  }
+  data$FirstVaccinationRate = data$cumfirstVaccination / data$pop
+  data$SecondVaccinationRate = data$cumsecondVaccination / data$pop
+
+  for (d in row.names(data)) {
+    if (as.numeric(difftime(d, '2020-03-11')) > 0) {
+      data[d,"self_isolating_if_ill"] <- 1
+      if (as.numeric(difftime(d, '2020-03-15')) > 0) {
+        data[d,"social_distancing_encouraged"] <- 1
+        if (as.numeric(difftime(d, '2021-03-28')) > 0) {
+          data[d,"social_distancing_encouraged"] <- 0.2
+        }
+        if (as.numeric(difftime(d, '2020-03-20')) > 0) {
+          data[d,"schools_universities"] <- 1
+          if (as.numeric(difftime(d, '2020-09-20')) > 0) {
+            data[d,"schools_universities"] <- 0.7
+            if (as.numeric(difftime(d, '2021-03-07')) > 0) {
+              data[d,"schools_universities"] <- 0.3
+            }
+          }
+          if (as.numeric(difftime(d, '2020-03-23')) > 0) {
+            data[d,"public_events"] <- 1
+            if (as.numeric(difftime(d, '2021-05-16')) > 0) {
+              data[d,"public_events"] <- 0.5
+            }
+            data[d,"lockdown"] <- 1
+          } 
+        } 
+      } 
+    } 
+  }
+  
+  for (d in row.names(data)) {
+    d <- ymd(d)
+    M <- month(d)
+    Y <- year(d)
+    for (i in row.names(temperature)) {
+      tem <- ymd(temperature$date[as.numeric(i)])
+      if (Y == year(tem)) {
+        if (M == month(tem))
+          data[as.character(d), 'temperature'] <- temperature$temperature[as.numeric(i)]
+      }
+    }
+  }
+  
+  new.index <- function(date) {
+    return(round(as.numeric(difftime(date, "2020-01-30"))))
+  }
+  data$index = as.numeric(lapply(data$date, new.index))
+  data <- data[order(data$index),]
+  row.names(data) <- data$index
+  data_new <- data[,c(
+    "Nation", "date", "cases", "deaths", "schools_universities",
+    "self_isolating_if_ill", "public_events" ,"lockdown",
+    "social_distancing_encouraged", "FirstVaccinationRate",
+    "SecondVaccinationRate", "temperature", "hospital"
+    )]
+
+  for (c in colnames(data_new)) {
+    for (r in row.names(data_new)) {
+      if (is.na(data_new[r,c])) {
+        data_new[r,c] <- 0
+      }
+    }
+  }
+  data <- data_new
+  row.names(protest) <- protest$date
+  for (i in row.names(data)) {
+    date <- as.character(data$date[as.numeric(i)])
+    data[i, "protest"] <- as.numeric(protest[date, "protest"])
+  }
+
+  return(data)
+}
+data <- download.data()
+```
+
+
+add the public isolation to the data
+
+1. school and university lock down at Mar $21^{st}$ 2020
+
+2. self-isolation if ill at Mar $12^{th}$ 2020
+
+3. public events forbidden at Mar $24^{th}$ 2020
+
+4. lock down at Mar $24^{th}$ 2020
+
+5. social distance encouraged at Mar $16^{th}$ 2020
+
+6. partial universities reopen after Sept $20^{th}$ 2020 (0.7)
+  school and university reopen at Mar $8^{th}$ 2021 (0.3)
+
+7. social distance encouraged end partially at Mar $29^{th}$ 2021
+
+8. public_events partially reopen at May $17^{th}$ 2021
+
+temperature data 'https://www.wunderground.com/history/monthly/gb/london/EGLW/date/2020-5'
+
+```{r}
+data.new <- NULL
+for (i in row.names(data)) {
+  i <- as.numeric(i)
+  if (i%%7 == 0) {
+    data.new <- rbind(data.new, data[i,])
+  }
+}
+colnames(data.new) <- colnames(data)
+data.new$date <- data$date[1:nrow(data.new)]
+row.names(data.new) <- c(1:nrow(data.new))
+data.new <- data.new[-71,]
+```
+
+
+# checking
+```{r}
+rt <- epirt(
+  formula = R(Nation, date) ~ 1  + 
+    schools_universities + self_isolating_if_ill +
+    social_distancing_encouraged + lockdown + protest + temperature + hospital,
+  prior = shifted_gamma(shape=1/6, scale = 1, shift = log(1.05)/6),
+  prior_covariance = decov(shape = c(2, rep(0.5, 5)),scale=0.25),
+  link = scaled_logit(6.5)
+)
+inf <- epiinf(
+  gen = EuropeCovid$si, 
+  seed_days = 6L
+  )
+data$day <- wday(data$date, label=T)
+deaths <- epiobs(
+  formula = deaths ~ 1,
+  i2o = EuropeCovid2$inf2death,
+  prior_intercept = normal(0, 0.01),
+  link = scaled_logit(0.02)
+  )
+
+plot.all <- function(
+  time.start = '2020-01-06', time.end = "2021-06-04", iter = 500000, data.entry = data
+  ) {
+  data.time <- filter(data.entry, date < as.Date(time.end))
+  data.time <- filter(data.time, date > as.Date(time.start))
+  args <- list(
+    rt=rt, inf=inf, obs=deaths, data=data.time, seed=12345, refresh=0
+    )
+  options(mc.cores = parallel::detectCores())
+
+  pr_args <- c(args, list(algorithm="sampling", iter=1e3, prior_PD=TRUE, control = list(adapt_delta = 0.99)))
+  fm_prior <- do.call(epim, pr_args)
+
+  p1 <- plot_rt(fm_prior)
+  args$algorithm <- "fullrank"
+  args$iter <- iter
+  args$tol_rel_obj <- 1e-5
+  fm <- do.call(epim, args)
+  p2 <- plot_rt(fm, step = T, levels = c(50, 95))
+  p3 <- plot_obs(fm, type = "deaths", step = T, levels = c(50, 95))
+  p4 <- plot_infections(fm, levels = c(50, 95), step = T)
+  p5 <- cowplot::plot_grid(p1, p2, p3, p4, nrow = 2, labels = LETTERS[1:4])
+  return(list(plot = p5, fm = fm))
+}
+```
+
+
+```{r, fig.cap="data until June 28, 2020", fig.align='center'}
+p <- plot.all(time.start = "2020-01-05", time.end = "2020-08-01", iter = 2000, data.entry = data)
+```
+
+```{r, fig.cap="data until July 28, 2020", fig.align='center'}
+plot.all("2020-07-28")
+```
+
+```{r, fig.cap="data until Aug 28, 2020", fig.align='center'}
+plot.all("2020-08-28")
+```
+
+```{r, fig.cap="data until Sept 28, 2020", fig.align='center'}
+plot.all("2020-09-28")
+```
+
+```{r, fig.cap="data until Oct 28, 2020", fig.align='center'}
+plot.all("2020-10-28")
+```
+
+```{r, fig.cap="data until Nov 30, 2020", fig.align='center'}
+plot.all("2020-11-28")
+```
+
+```{r, fig.cap="data until Dec 30, 2020", fig.align='center'}
+plot.all("2020-12-28")
+```
+
+```{r, fig.cap="data until Jan 30, 2021", fig.align='center'}
+plot.all("2021-01-28")
+```
+
+```{r, fig.cap="data until Feb 30, 2021", fig.align='center'}
+plot.all("2021-02-28")
+```
+
+```{r, fig.cap="data until Mar 30, 2021", fig.align='center'}
+plot.all("2021-03-28")
+```
+
+```{r, fig.cap="data until Apr 30, 2021", fig.align='center'}
+plot.all("2021-04-28")
+```
+
+```{r, fig.cap="data until May 30, 2021", fig.align='center'}
+plot.all("2021-05-28", iter = 380000)
+```
+
+
+
+
+
+
+
+
+

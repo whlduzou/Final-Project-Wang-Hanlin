@@ -1,0 +1,317 @@
+---
+title: "Moltilevel Model"
+output: html_document
+---
+
+```{r global_options, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  fig.width=8, fig.height=5,
+  echo=FALSE, warning=FALSE, message=FALSE
+  )
+```
+
+
+```{r library}
+rm(list = ls())
+library(dplyr)
+library(epidemia)
+library(rstanarm)
+library(httr)
+library(jsonlite)
+library(Hmisc)
+library(knitr)
+library(lubridate)
+```
+data preparation:
+
+seeding begins in each country 30 days prior to observing 10 cumulative deaths
+```{r data}
+download.data <- function(nation) {
+  # API request
+  AREA_TYPE = "nation"
+  AREA_NAME = nation
+
+  endpoint <- "https://coronavirus.data.gov.uk/api/v1/data"
+
+  # Create filters:
+  filters <- c(
+    sprintf("areaType=%s", AREA_TYPE),
+    sprintf("areaName=%s", AREA_NAME)
+  )
+
+  # Create the structure as a list or a list of lists:
+  structure <- list(
+      Nation = "areaName",
+      date = "date", 
+      cases = "newCasesByPublishDate",
+      cumulativeCases = "cumCasesByPublishDate",
+      deaths = "newDeaths28DaysByPublishDate", 
+      # newDailyNsoDeathsByDeathDate
+      cumulativeDeaths = "cumDeaths28DaysByPublishDate",
+      # cumDailyNsoDeathsByDeathDate
+      # Patients in hospital
+      hospital = "hospitalCases",
+      ventilationbeds = "covidOccupiedMVBeds",
+      newfirstVaccination = "newPeopleVaccinatedFirstDoseByPublishDate",
+      cumfirstVaccination = "cumPeopleVaccinatedFirstDoseByPublishDate",
+      newsecondVaccination = "newPeopleVaccinatedSecondDoseByPublishDate",
+      cumsecondVaccination = "cumPeopleVaccinatedSecondDoseByPublishDate"
+  )
+
+  response <- GET(
+    url = endpoint,
+    query = list(
+          filters = paste(filters, collapse = ";"),
+          structure = jsonlite::toJSON(structure, auto_unbox = TRUE)
+      ),
+    content_type("application/json"),
+    timeout(10)
+  ) 
+
+  # Handle errors:
+  if (response$status_code >= 400) {
+      err_msg = httr::http_status(response)
+      stop(err_msg)
+  }
+
+  # Convert response from binary to JSON:
+  json_text <- content(response, "text")
+  data      <- fromJSON(json_text)$data
+
+  pop.fun <- function(date) {
+    pop.2019 <- 67530172
+    pop.2020 <- 67886011
+    rate.day <- log(pop.2020/pop.2019)/365
+    diff.day <- as.numeric(difftime(date, '2020-01-01'))
+    return(round(pop.2019 * exp(rate.day*diff.day)))
+  }
+  data$pop <- lapply(data$date, pop.fun)
+  data$pop <- as.numeric(data$pop)
+  data$date <- as.Date(data$date)
+  rownames(data) <- data$date
+  for (d in row.names(data)) {
+    differ = as.numeric(difftime(d, '2020-12-8'))
+    if (differ < 0) {
+      data[
+        d, c(
+          "newfirstVaccination", "cumfirstVaccination",
+          "newsecondVaccination", "cumsecondVaccination"
+          )] <- c(0,0,0,0)
+    }
+  }
+  for (d in row.names(data)) {
+    if (is.na(data[d, "cumfirstVaccination"])) {
+      differ.all = as.numeric(difftime('2021-01-10', '2020-12-7'))
+      differ = as.numeric(difftime(d, '2020-12-7'))
+      cum <- data['2021-01-10', "cumfirstVaccination"] / differ.all
+      data[d, "cumfirstVaccination"] <- round(cum * differ)
+    }
+  }
+  for (d in row.names(data)) {
+    if (is.na(data[d, "newfirstVaccination"])) {
+      cum <- data[d, "cumfirstVaccination"]
+      x <- ymd(d)
+      day(x) <- day(d) - 1
+      x <- as.character(x)
+      data[d, "newfirstVaccination"] <- cum - data[x, "cumfirstVaccination"]
+    }
+  }
+  for (d in row.names(data)) {
+    if (is.na(data[d, "cumsecondVaccination"])) {
+      if (difftime(d, '2021-01-04') > 0) {
+        differ.all = as.numeric(difftime('2021-01-10', '2021-01-04'))
+        differ = as.numeric(difftime(d, '2021-01-04'))
+        cum <- data['2021-01-10', "cumsecondVaccination"] / differ.all
+        data[d, "cumsecondVaccination"] <- round(cum * differ)
+      } else {
+        data[d, "cumsecondVaccination"] <- 0
+      }
+    }
+  }
+  for (d in row.names(data)) {
+    if (is.na(data[d, "newsecondVaccination"])) {
+      cum <- data[d, "cumsecondVaccination"]
+      x <- ymd(d)
+      day(x) <- day(d) - 1
+      x <- as.character(x)
+      data[
+        d, "newsecondVaccination"
+        ] <- cum - data[x, "cumsecondVaccination"]
+    }
+  }
+  data$FirstVaccinationRate = data$cumfirstVaccination / data$pop
+  data$SecondVaccinationRate = data$cumsecondVaccination / data$pop
+
+  for (d in row.names(data)) {
+    if (as.numeric(difftime(d, '2020-03-11')) > 0) {
+      data[d,"self_isolating_if_ill"] <- 1
+      if (as.numeric(difftime(d, '2020-03-15')) > 0) {
+        data[d,"social_distancing_encouraged"] <- 1
+        if (as.numeric(difftime(d, '2020-03-20')) > 0) {
+          data[d,"schools_universities"] <- 1
+          if (as.numeric(difftime(d, '2020-03-23')) > 0) {
+            data[d,"public_events"] <- 1
+            data[d,"lockdown"] <- 1
+          } 
+        } 
+      } 
+    } 
+  }
+  new.index <- function(date) {
+    return(round(as.numeric(difftime(date, "2020-01-30"))))
+  }
+  data$index = as.numeric(lapply(data$date, new.index))
+  data <- data[order(data$index),]
+  row.names(data) <- data$index
+  data_new <- data[,c(
+    "Nation", "date", "cases", "deaths", "schools_universities",
+    "self_isolating_if_ill", "public_events" ,"lockdown",
+    "social_distancing_encouraged", "FirstVaccinationRate",
+    "SecondVaccinationRate"
+    )]
+
+  for (c in colnames(data_new)) {
+    for (r in row.names(data_new)) {
+      if (is.na(data_new[r,c])) {
+        data_new[r,c] <- 0
+      }
+    }
+  }
+  data <- data_new
+  return(data)
+}
+data.england <- download.data("england")
+data.northern.ireland <- download.data("northern ireland")
+data.scotland <- download.data("scotland") 
+data.wales <- download.data("wales")
+data <- rbind(data.england, data.northern.ireland, data.scotland, data.wales)
+```
+```{r table}
+knitr::kable(tail(data), caption = "data summary")
+```
+
+
+
+
+```{r r0}
+rt <- epirt(
+  formula = R(Nation, date) ~ 0 + (1 + public_events + schools_universities + self_isolating_if_ill + social_distancing_encouraged + lockdown || Nation) + public_events + schools_universities + self_isolating_if_ill + social_distancing_encouraged + lockdown,
+  prior = shifted_gamma(shape=1/6, scale = 1, shift = log(1.05)/6),
+  prior_covariance = decov(shape = c(2, rep(0.5, 5)),scale=0.25),
+  link = scaled_logit(6.5)
+)
+inf <- epiinf(gen = EuropeCovid$si, seed_days = 6)
+deaths <- epiobs(
+  formula = deaths ~ 1,
+  i2o = EuropeCovid2$inf2death,
+  prior_intercept = normal(0,0.2),
+  link = scaled_logit(0.02)
+)
+```
+
+
+
+# checking
+```{r checking}
+fm.function <- function(time) {
+  data.time <- filter(data, date < as.Date(time))
+  args <- list(
+    rt=rt, inf=inf, obs=deaths, data=data.time, seed=12345, refresh=0
+    )
+  options(mc.cores = parallel::detectCores())
+  pr_args <- c(args, list(algorithm="sampling", iter=1e3, prior_PD=TRUE))
+  fm_prior <- do.call(epim, pr_args)
+  args$algorithm <- "fullrank"
+  args$iter <- 5e4
+  args$tol_rel_obj <- 1e-3
+  fm <- do.call(epim, args)
+  return(fm)
+}
+```
+
+```{r plot, fig.cap="data until Sept 30, 2020"}
+fm <- fm.function(time = '2020-09-30')
+plot_rt(fm)
+plot_obs(fm, type = "deaths", levels = c(50, 95))
+```
+
+```{r plot2, fig.cap="data until Oct 31, 2020"}
+fm <- fm.function(time = '2020-10-31')
+par(mfrow = c(1,2))
+plot_rt(fm)
+plot_obs(fm, type = "deaths", levels = c(50, 95))
+```
+
+```{r plot3, fig.cap="data until Nov 30, 2020"}
+fm <- fm.function(time = '2020-11-30')
+par(mfrow = c(1,2))
+plot_rt(fm)
+plot_obs(fm, type = "deaths", levels = c(50, 95))
+```
+
+```{r plot4, fig.cap="data until Dec 31, 2020"}
+fm <- fm.function(time = '2020-12-31')
+par(mfrow = c(1,2))
+plot_rt(fm)
+plot_obs(fm, type = "deaths", levels = c(50, 95))
+```
+
+# Adding the impact of Vaccination
+```{r,eval=FALSE}
+rt <- epirt(
+  formula = R(Nation, date) ~ 0 + (1 + public_events + schools_universities + self_isolating_if_ill + social_distancing_encouraged + lockdown + FirstVaccinationRate + SecondVaccinationRate|| Nation) + public_events + schools_universities + self_isolating_if_ill + social_distancing_encouraged + lockdown + FirstVaccinationRate + SecondVaccinationRate,
+  prior = shifted_gamma(shape=1/6, scale = 1, shift = log(1.05)/6),
+  prior_covariance = decov(shape = c(2, rep(0.5, 5)),scale=0.25),
+  link = scaled_logit(6.5)
+)
+inf <- epiinf(gen = EuropeCovid$si, seed_days = 6)
+deaths <- epiobs(
+  formula = deaths ~ 1,
+  i2o = EuropeCovid2$inf2death,
+  prior_intercept = normal(0,0.2),
+  link = scaled_logit(0.02)
+)
+fm.function <- function(time) {
+  data.time <- filter(data, date < as.Date(time))
+  args <- list(
+    rt=rt, inf=inf, obs=deaths, data=data.time, seed=12345, refresh=0
+    )
+  options(mc.cores = parallel::detectCores())
+  pr_args <- c(args, list(algorithm="sampling", iter=1e3, prior_PD=TRUE))
+  fm_prior <- do.call(epim, pr_args)
+  args$algorithm <- "fullrank"
+  args$iter <- 5e4
+  args$tol_rel_obj <- 1e-3
+  fm <- do.call(epim, args)
+  return(fm)
+}
+```
+
+```{r plot5, fig.cap="data until Sept 30, 2020 Vaccination",eval=FALSE}
+fm <- fm.function(time = '2020-09-30')
+par(mfrow = c(1,2))
+plot_rt(fm)
+plot_obs(fm, type = "deaths", levels = c(50, 95))
+```
+
+```{r plot6, fig.cap="data until Oct 31, 2020 Vaccination",eval=FALSE}
+fm <- fm.function(time = '2020-10-31')
+par(mfrow = c(1,2))
+plot_rt(fm)
+plot_obs(fm, type = "deaths", levels = c(50, 95))
+```
+
+```{r plot7, fig.cap="data until Nov 30, 2020 Vaccination",eval=FALSE}
+fm <- fm.function(time = '2020-11-30')
+par(mfrow = c(1,2))
+plot_rt(fm)
+plot_obs(fm, type = "deaths", levels = c(50, 95))
+```
+
+```{r plot8, fig.cap="data until Dec 31, 2020 Vaccination",eval=FALSE}
+fm <- fm.function(time = '2020-12-31')
+par(mfrow = c(1,2))
+plot_rt(fm)
+plot_obs(fm, type = "deaths", levels = c(50, 95))
+```
+
