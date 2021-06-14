@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
 ```{r library}
 options (warn = -1)
 rm(list = ls())
+# import packages
 library(dplyr)
 library(epidemia)
 library(rstanarm)
@@ -24,53 +25,92 @@ library(knitr)
 library(lubridate)
 library(ggplot2)
 library(tidyverse)
-extrafont::loadfonts()
 
 setwd("/Users/wanghanlin/Desktop/final project")
+# temperature might have impact on the R_t, hence I download the  temperature data from 'https://www.wunderground.com/history/monthly/gb/london/EGLW/date/2020-5' as a csv data, and then read into R
+# the temperature data is the monthly data
 temperature <- read.csv("temperature.csv")
+temperature$date <- as.Date(temperature$date)
+
+# This is the Google trend data downloaded from Google
 protest <- read.csv("protest.csv")
 protest$week <- as.Date(protest$week)
 
-temperature$date <- as.Date(temperature$date)
-temp <- seq.Date(from = as.Date("2020/01/05",format = "%Y/%m/%d"), by = "day", length.out = as.numeric(difftime("2021-06-06", "2020-01-05")))
-protest.new <- data.frame(date <- temp)
-colnames(protest.new) <- c("date")
-protest.new$protest <- -1
-for (i in row.names(protest.new)) {
-  date <- as.Date(protest.new$date[as.numeric(i)])
-  for (j in row.names(protest)) {
-    if (date == as.Date(protest$week[as.numeric(j)])) {
-      protest.new[i, "protest"] <- protest$protest[as.numeric(j)]
-      break
-    } else {
-      protest.new[i, "protest"] <- NA
-    }
-  }
-}
-protest <- protest.new
-rm(protest.new)
-for (i in row.names(protest)) {
+# create a list from "2020-01-01" to today
+temp <- seq.Date(
+  from = as.Date(
+    "2020/01/01",format = "%Y/%m/%d"
+    ), by = "day",
+  length.out = as.numeric(
+    difftime(Sys.Date(), "2020-01-01")
+    )
+  )
+temp <- data.frame(date <- temp)
+colnames(temp) <- c("date")
+colnames(protest) <- c("date", "protest")
+temp <- left_join(temp, protest)
+temp <- left_join(temp, temperature)
+
+# initial  variables
+protest.former <- NA
+protest.later <- NA
+protest.date.former <- NA 
+protest.date.later <- NA 
+for (i in row.names(temp)) {
   i <- as.numeric(i)
-  date <- protest$date[i]
-  if (is.na(protest$protest[i])) {
-    posterior.date <- protest$date[nrow(protest)]
-    posterior.protest <- former.protest
-    for (j in (i+1: nrow(protest))) {
-      if (is.na(protest$protest[j]) == FALSE) {
-        posterior.date <- protest$date[j]
-        posterior.protest <- protest$protest[j]
+  # impute the temperature, all months has the same temperature
+  if (is.na(temp$temperature[i]) == FALSE){
+    temperature.month <- temp$temperature[i]
+  } else {
+    temp[i, "temperature"] <- temperature.month
+  }
+  # impute the protest data, from weekly to daily
+  if (is.na(temp$protest[i])) {
+
+    for (j in (i+1:nrow(temp))) {
+      if (is.na(temp$protest[j]) == FALSE) {
+        protest.date.later <- temp$date[j]
+        protest.later <- temp$protest[j]
         break
       }
     }
-    former.diff.day <- abs(as.numeric(difftime(former.date, date)))
-    posterior.diff.day <- abs(as.numeric(difftime(posterior.date, date)))
-    protest[i, "protest"] <- (
-      former.protest * posterior.diff.day
-      + posterior.protest * former.diff.day
-      )/(former.diff.day + posterior.diff.day)
+        former.time <- as.numeric(
+      difftime(temp$date[i], protest.date.former)
+      )
+    later.time <- as.numeric(
+      difftime(protest.date.later, temp$date[i])
+      )
+    # the weighted average
+    temp[i, "protest"] <- (
+      former.time * protest.later + 
+        later.time * protest.former
+    )/(
+      former.time + later.time
+    )
   } else {
-    former.date <- date
-    former.protest <- protest$protest[i]
+    protest.date.former <- temp$date[i]
+    protest.former <- temp$protest[i]
+  }
+}
+# impute the protest at the first and the last
+impute.data <- NA
+for (i in row.names(temp)) {
+  i <- as.numeric(i)
+  if (is.na(temp$protest[i])) {
+    if (is.na(impute.data)) {
+      for (j in (i+1: nrow(temp))) {
+        if (is.na(temp$protest[j]) == FALSE) {
+          impute.data <- temp$protest[j]
+          break
+        }
+      }
+      temp[i, "protest"] <- impute.data
+      impute.data <- NA
+    } else {
+      temp[i, "protest"] <- impute.data
+    }
+  } else {
+    impute.data <- temp$protest[i]
   }
 }
 
@@ -90,10 +130,7 @@ download.data <- function() {
       Nation = "areaName",
       date = "date", 
       cases = "newCasesByPublishDate",
-      cumulativeCases = "cumCasesByPublishDate",
       deaths = "newDeaths28DaysByDeathDate", 
-      cumulativeDeaths = "cumDeaths28DaysByPublishDate",
-      # cumDailyNsoDeathsByDeathDate
       # Patients in hospital
       hospital = "hospitalCases",
       ventilationbeds = "covidOccupiedMVBeds",
@@ -206,48 +243,25 @@ download.data <- function() {
     } 
   }
   
-  for (d in row.names(data)) {
-    d <- ymd(d)
-    M <- month(d)
-    Y <- year(d)
-    for (i in row.names(temperature)) {
-      tem <- ymd(temperature$date[as.numeric(i)])
-      if (Y == year(tem)) {
-        if (M == month(tem))
-          data[as.character(d), 'temperature'] <- temperature$temperature[as.numeric(i)]
-      }
-    }
-  }
-  
   new.index <- function(date) {
     return(round(as.numeric(difftime(date, "2020-01-30"))))
   }
   data$index = as.numeric(lapply(data$date, new.index))
   data <- data[order(data$index),]
   row.names(data) <- data$index
-  data_new <- data[,c(
-    "Nation", "date", "cases", "deaths", "schools_universities",
-    "self_isolating_if_ill", "public_events" ,"lockdown",
-    "social_distancing_encouraged", "FirstVaccinationRate",
-    "SecondVaccinationRate", "temperature", "hospital"
-    )]
-
-  for (c in colnames(data_new)) {
-    for (r in row.names(data_new)) {
-      if (is.na(data_new[r,c])) {
-        data_new[r,c] <- 0
+  # impute Na with 0
+  for (i in row.names(data)) {
+    for (j in colnames(data)) {
+      if (is.na(data[i,j])) {
+        data[i,j] <- 0
       }
     }
   }
-  data <- data_new
-  row.names(protest) <- protest$date
-  for (i in row.names(data)) {
-    date <- as.character(data$date[as.numeric(i)])
-    data[i, "protest"] <- as.numeric(protest[date, "protest"])
-  }
-
+  data$index <- NULL
+  data <- left_join(data, temp)
   return(data)
 }
+
 data <- download.data()
 ```
 
@@ -271,7 +285,7 @@ add the public isolation to the data
 
 8. public_events partially reopen at May $17^{th}$ 2021
 
-temperature data 'https://www.wunderground.com/history/monthly/gb/london/EGLW/date/2020-5'
+
 
 ```{r}
 data.new <- NULL
