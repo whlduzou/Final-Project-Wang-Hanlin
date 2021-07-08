@@ -1,4 +1,4 @@
-setwd("/Users/wanghanlin/Desktop/final project")
+#setwd("/Users/wanghanlin/Desktop/final project")
 get.data.overall <- function(AREA_TYPE = c("overview", "nation"), AREA_NAME) {
   # import packages
   library(dplyr)
@@ -18,7 +18,13 @@ get.data.overall <- function(AREA_TYPE = c("overview", "nation"), AREA_NAME) {
   temperature$date <- as.Date(temperature$date)
   
   # This is the Google trend data downloaded from Google
-  protest <- read.csv("./data/protest.csv")
+  
+  protest <- read.csv("./data/protest data.csv")
+  if (AREA_TYPE == "overview") {
+    protest <- subset(protest, protest$Nation == "United Kingdom")
+  } else if (AREA_TYPE == "nation") {
+    protest <- subset(protest, protest$Nation == AREA_NAME)
+  }
   protest$week <- as.Date(protest$week)
   
   # create a list from "2020-01-01" to today
@@ -297,5 +303,5 @@ get.data <- function(AREA_TYPE = c("overview", "nation")) {
   
   return(data)
 }
-data <- get.data("nation")
+data <- get.data.overall("nation", "England")
 
