@@ -1,129 +1,97 @@
 #setwd("/Users/wanghanlin/Desktop/final project")
-get.data.overall <- function(AREA_TYPE = c("overview", "nation"), AREA_NAME) {
-  # import packages
+
+remove_reference <- function(file) {
+  # the acknowledge and reference is in the bottom of the file
+  # remove it because it is useless for the file
+  file <- drop_na(file)
+}
+
+select.nation <- function(file, AREA_NAME) {
+  file <- subset(file, Nation == AREA_NAME)
+  # the AREA_NAME is known, hence the Nation list should be drop
+  file <- subset(file, select = -c(Nation))
+}
+
+linear.impute <- function(file, j) {
+  # first col is date, others has missing data
+  # j is the index of the col, which is needed to impute
+  repeat_time <- nrow(file) - sum(is.na(file[,j]))
+  ini_col <- file[1,j]
+  ini <- 1
+  end <- 0
+  for (r in 1:repeat_time) {
+    for (i in (ini + 1):nrow(file)) {
+      if (is.na(file[i,j]) == FALSE) {
+        end_col <- file[i,j]
+        end <- i-1
+        break
+      }
+      if (i == nrow(file)) {
+        end_col <- ini_col
+      }
+    }
+    for (i in (ini+1):end) {
+      file[i,j] = (end_col - ini_col)/(end+1 - ini)*(i - ini) + ini_col
+    }
+    ini_col  <- end_col 
+    ini <- end + 1
+  }
+  return(file)
+}
+# AREA_NAME <- "England"
+get.data.overall <- function(AREA_NAME) {
+  library(tidyr)
   library(dplyr)
-  library(epidemia)
-  library(rstanarm)
-  library(httr)
-  library(jsonlite)
-  library(Hmisc)
-  library(knitr)
-  library(lubridate)
-  library(ggplot2)
-  library(tidyverse)
-  
   # temperature might have impact on the R_t, hence I download the  temperature data from 'https://www.wunderground.com/history/monthly/gb/london/EGLW/date/2020-5' as a csv data, and then read into R
   # the temperature data is the monthly data
   temperature <- read.csv("./data/temperature.csv")
-  temperature$date <- as.Date(temperature$date)
+  temperature <- remove_reference(temperature)
+  temperature <- select.nation(temperature, AREA_NAME)
+  temperature$Date <- as.Date(temperature$Date)
   
   # This is the Google trend data downloaded from Google
-  
   protest <- read.csv("./data/protest data.csv")
-  if (AREA_TYPE == "overview") {
-    protest <- subset(protest, protest$Nation == "United Kingdom")
-  } else if (AREA_TYPE == "nation") {
-    protest <- subset(protest, protest$Nation == AREA_NAME)
-  }
-  protest$week <- as.Date(protest$week)
+  protest <- select.nation(protest, AREA_NAME)
+  protest$Date <- as.Date(protest$Date)
   
-  # create a list from "2020-01-01" to today
-  temp <- seq.Date(
+  temp_protest <- inner_join(temperature, protest, by = "Date")
+  
+  # create a list from "2020-01-05" to today
+  #all data generate to this file
+  Date <- seq.Date(
     from = as.Date(
-      "2020/01/01",format = "%Y/%m/%d"
+      "2020/01/05",format = "%Y/%m/%d"
     ), by = "day",
     length.out = as.numeric(
-      difftime(Sys.Date(), "2020-01-01")
+      difftime(Sys.Date(), "2020-01-05")
     )
   )
-  temp <- data.frame(date <- temp)
-  colnames(temp) <- c("date")
-  colnames(protest) <- c("date", "protest")
-  temp <- left_join(temp, protest, by = "date")
-  temp <- left_join(temp, temperature, by = "date")
+  data_file <- data.frame(date <- Date)
+  data_file$t <-1
+  colnames(data_file) <- c("Date", "try")
+  data_file <- left_join(data_file, temp_protest, by = "Date")
+  data_file <- subset(data_file, select = -c(try))
   
-  # initial  variables
-  protest.former <- NA
-  protest.later <- NA
-  protest.date.former <- NA 
-  protest.date.later <- NA 
-  for (i in row.names(temp)) {
-    i <- as.numeric(i)
-    # impute the temperature, all months has the same temperature
-    if (is.na(temp$temperature[i]) == FALSE){
-      temperature.month <- temp$temperature[i]
-    } else {
-      temp[i, "temperature"] <- temperature.month
-    }
-    # impute the protest data, from weekly to daily
-    if (is.na(temp$protest[i])) {
-      
-      for (j in (i+1:nrow(temp))) {
-        if (is.na(temp$protest[j]) == FALSE) {
-          protest.date.later <- temp$date[j]
-          protest.later <- temp$protest[j]
-          break
-        }
-      }
-      former.time <- as.numeric(
-        difftime(temp$date[i], protest.date.former)
-      )
-      later.time <- as.numeric(
-        difftime(protest.date.later, temp$date[i])
-      )
-      # the weighted average
-      temp[i, "protest"] <- (
-        former.time * protest.later + 
-          later.time * protest.former
-      )/(
-        former.time + later.time
-      )
-    } else {
-      protest.date.former <- temp$date[i]
-      protest.former <- temp$protest[i]
-    }
-  }
-  # impute the protest at the first and the last
-  impute.data <- NA
-  for (i in row.names(temp)) {
-    i <- as.numeric(i)
-    if (is.na(temp$protest[i])) {
-      if (is.na(impute.data)) {
-        for (j in (i+1: nrow(temp))) {
-          if (is.na(temp$protest[j]) == FALSE) {
-            impute.data <- temp$protest[j]
-            break
-          }
-        }
-        temp[i, "protest"] <- impute.data
-        impute.data <- NA
-      } else {
-        temp[i, "protest"] <- impute.data
-      }
-    } else {
-      impute.data <- temp$protest[i]
-    }
-  }
+  # impute temperature max
+  data_file <- linear.impute(data_file, 2)
+  # impute temperature average
+  data_file <- linear.impute(data_file, 3)
+  # impute temperature min
+  data_file <- linear.impute(data_file, 4)
+  # impute protest
+  data_file <- linear.impute(data_file, 5)
+  
   
   # download data from the website
   # API request
   endpoint <- "https://coronavirus.data.gov.uk/api/v1/data"
   
   # Create filters:
-  if (AREA_TYPE == "overview") {
-    filters <- c(
-      sprintf("areaType=%s", AREA_TYPE)
-    )
-  } else if (AREA_TYPE == "nation") {
-    filters <- c(
-      sprintf("areaType=%s", AREA_TYPE),
-      sprintf("areaName=%s", AREA_NAME)
-    )
-  } else {
-    return("Area type Error")
-  }
+  filters <- c(
+    sprintf("areaType=%s", "nation"),
+    sprintf("areaName=%s", AREA_NAME)
+  )
 
-  
   # Create the structure as a list or a list of lists:
   structure <- list(
     Nation = "areaName",
