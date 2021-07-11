@@ -24,7 +24,7 @@ loadfonts(device = "postscript", quiet = TRUE)
 
 ```{r get data}
 source("get data function.R")
-data <- get.data("nation")
+data <- get.data()
 ```
 
 
