@@ -38,8 +38,119 @@ linear.impute <- function(file, j) {
   }
   return(file)
 }
-# AREA_NAME <- "England"
-get.data.overall <- function(AREA_NAME) {
+
+add.policy <- function(data){
+  library(dplyr)
+  data$Government_announcements <- 0
+  data$Lockdown <- 0
+  data$Legislation <- 0
+  data$schools_universities <- 0
+  data <- arrange(data, date)
+  # adding the policy data 
+  for (d in 1:nrow(data)) {
+    date <- data$date[d]
+    if (date >= '2020-03-16') {
+      data[d,"government_announcements"] <- 1
+    }
+    if (date >= '2020-03-19') {
+      data[d,"government_announcements"] <- 0.7
+    }
+    if (date >= '2020-03-21') {
+      data[d,"schools_universities"] <- 1
+    }
+    if (date >= '2020-03-23') {
+      data[d,"Lockdown"] <- 1
+    }
+    if (date >= '2020-03-25') {
+      data[d,"Legislation"] <- 1
+    }
+    if (date >= '2020-03-26') {
+      data[d,"Lockdown"] <- 1.5
+    }
+    if (date >= '2020-04-16') {
+      data[d,"Lockdown"] <- 2
+    }
+    if (date >= '2020-04-30') {
+      data[d,"government_announcements"] <- 0.6
+    }
+    if (date >= '2020-05-10') {
+      data[d,"government_announcements"] <- 0.3
+      data[d,"Lockdown"] <- 1
+    }
+    if (date >= '2020-06-01') {
+      data[d,"schools_universities"] <- 0.7
+    }
+    if (date >= '2020-06-15') {
+      data[d,"Lockdown"] <- 0.5
+    }
+    if (date >= '2020-05-10') {
+      data[d,"government_announcements"] <- 0
+      data[d,"Lockdown"] <- 0.1
+    }
+    if (date >= '2020-06-29') {
+      data[d,"government_announcements"] <- 0.2
+      data[d,"Lockdown"] <- 0.3
+    }
+    if (date >= '2020-07-04') {
+      data[d,"Lockdown"] <- 0.5
+    }
+    if (date >= '2020-07-18') {
+      data[d,"Legislation"] <- 1.5
+    }
+    if (date >= '2020-08-03') {
+      data[d,"Lockdown"] <- 0.3
+    }
+    if (date >= '2020-08-14') {
+      data[d,"Lockdown"] <- 0
+    }
+    if (date >= '2020-09-14') {
+      data[d,"Lockdown"] <- 0.3
+    }
+    if (date >= '2020-09-22') {
+      data[d,"Lockdown"] <- 1
+      data[d,"government_announcements"] <- 1
+    }
+    if (date >= '2020-09-30') {
+      data[d,"government_announcements"] <- 1.2
+    }
+    if (date >= '2020-10-14') {
+      data[d,"Lockdown"] <- 1.2
+    }
+    if (date >= '2020-10-31') {
+      data[d,"Lockdown"] <- 1.4
+      data[d,"government_announcements"] <- 1.4
+    }
+    if (date >= '2020-11-05') {
+      data[d,"Lockdown"] <- 1.5
+    }
+    if (date >= '2020-11-24') {
+      data[d,"government_announcements"] <- 0.6
+    }
+    if (date >= '2020-12-02') {
+      data[d,"Lockdown"] <- 2
+    }
+    if (date >= '2020-12-15') {
+      data[d,"government_announcements"] <- 0.2
+    }
+    if (date >= '2020-12-19') {
+      data[d,"government_announcements"] <- 0.5
+    }
+    if (date >= '2020-12-21') {
+      data[d,"Lockdown"] <- 2.5
+    }
+    if (date >= '2020-12-26') {
+      data[d,"Lockdown"] <- 3
+    }
+    if (date >= '2021-03-07') {
+      data[d,"schools_universities"] <- 0.3
+    }
+  }
+  return(data)
+}
+
+
+
+get.env.data <- function(AREA_NAME) {
   library(tidyr)
   library(dplyr)
   # temperature might have impact on the R_t, hence I download the  temperature data from 'https://www.wunderground.com/history/monthly/gb/london/EGLW/date/2020-5' as a csv data, and then read into R
@@ -47,18 +158,18 @@ get.data.overall <- function(AREA_NAME) {
   temperature <- read.csv("./data/temperature.csv")
   temperature <- remove_reference(temperature)
   temperature <- select.nation(temperature, AREA_NAME)
-  temperature$Date <- as.Date(temperature$Date)
+  temperature$date <- as.Date(temperature$date)
   
   # This is the Google trend data downloaded from Google
   protest <- read.csv("./data/protest data.csv")
   protest <- select.nation(protest, AREA_NAME)
-  protest$Date <- as.Date(protest$Date)
+  protest$date <- as.Date(protest$date)
   
-  temp_protest <- inner_join(temperature, protest, by = "Date")
+  temp_protest <- inner_join(temperature, protest, by = "date")
   
   # create a list from "2020-01-05" to today
   #all data generate to this file
-  Date <- seq.Date(
+  date <- seq.Date(
     from = as.Date(
       "2020/01/05",format = "%Y/%m/%d"
     ), by = "day",
@@ -66,10 +177,10 @@ get.data.overall <- function(AREA_NAME) {
       difftime(Sys.Date(), "2020-01-05")
     )
   )
-  data_file <- data.frame(date <- Date)
+  data_file <- data.frame(date <- date)
   data_file$t <-1
-  colnames(data_file) <- c("Date", "try")
-  data_file <- left_join(data_file, temp_protest, by = "Date")
+  colnames(data_file) <- c("date", "try")
+  data_file <- left_join(data_file, temp_protest, by = "date")
   data_file <- subset(data_file, select = -c(try))
   
   # impute temperature max
@@ -80,8 +191,13 @@ get.data.overall <- function(AREA_NAME) {
   data_file <- linear.impute(data_file, 4)
   # impute protest
   data_file <- linear.impute(data_file, 5)
-  
-  
+  return(data_file)
+}
+
+get.covid.data <- function(AREA_NAME) {
+  library(request)
+  library(jsonlite)
+  library(lubridate)
   # download data from the website
   # API request
   endpoint <- "https://coronavirus.data.gov.uk/api/v1/data"
@@ -109,7 +225,7 @@ get.data.overall <- function(AREA_NAME) {
     # Patients in mechanical ventilation beds
     Beds = "covidOccupiedMVBeds"
   )
-  
+  library(httr)
   response <- GET(
     url = endpoint,
     query = list(
@@ -189,35 +305,6 @@ get.data.overall <- function(AREA_NAME) {
     }
   }
   
-
-  # adding the policy data 
-  for (d in row.names(data)) {
-    if (as.numeric(difftime(d, '2020-03-11')) > 0) {
-      data[d,"self_isolating_if_ill"] <- 1
-      if (as.numeric(difftime(d, '2020-03-15')) > 0) {
-        data[d,"social_distancing_encouraged"] <- 1
-        if (as.numeric(difftime(d, '2021-03-28')) > 0) {
-          data[d,"social_distancing_encouraged"] <- 0.2
-        }
-        if (as.numeric(difftime(d, '2020-03-20')) > 0) {
-          data[d,"schools_universities"] <- 1
-          if (as.numeric(difftime(d, '2020-09-20')) > 0) {
-            data[d,"schools_universities"] <- 0.7
-            if (as.numeric(difftime(d, '2021-03-07')) > 0) {
-              data[d,"schools_universities"] <- 0.3
-            }
-          }
-          if (as.numeric(difftime(d, '2020-03-23')) > 0) {
-            data[d,"public_events"] <- 1
-            if (as.numeric(difftime(d, '2021-05-16')) > 0) {
-              data[d,"public_events"] <- 0.5
-            }
-            data[d,"lockdown"] <- 1
-          } 
-        } 
-      } 
-    } 
-  }
   
   # change the index
   data$index = c(1:nrow(data))
@@ -231,23 +318,16 @@ get.data.overall <- function(AREA_NAME) {
       }
     }
   }
-  data$index <- NULL
-  data <- left_join(data, temp, by = "date")
-  data <- data[-1,] # the latest daily data is problematic
+  data <- subset(data, select = -c(index))
+  return(data)
 }
 
-get.data <- function(AREA_TYPE = c("overview", "nation")) {
+get.data <- function() {
   data <- NULL
-  if (AREA_TYPE == "overview"){
-    data <- get.data.overall(AREA_TYPE)
-    data$pop <- 68231235
-  } else if (AREA_TYPE == "nation") {
-    for (
-      nation in c("England", "Wales", "Scotland", "Northern Ireland")
-      ) {
-      data.temp <- get.data.overall(
-        AREA_TYPE = "nation", AREA_NAME = nation
-        )
+  nation.list <- c("England", "Wales", "Scotland", "Northern Ireland")
+  for (nation in nation.list) {
+      env.data <- get.env.data(AREA_NAME = nation)
+      covid.data <- get.covid.data(AREA_NAME = nation)
       if (nation == "Wales") {
         data.temp$pop <- 3228120
       }
@@ -260,16 +340,11 @@ get.data <- function(AREA_TYPE = c("overview", "nation")) {
       if (nation == "Northern Ireland") {
         data.temp$pop <- 1905484
       }
+      data.temp <- inner_join(env.data, covid.data, by = c("date"))
+      data.temp <- add.policy(data.temp)
       data <- rbind(data, data.temp)
-    }
-  } else {
-    return("Area type Error")
   }
-  # the injection rate
-  data$FirstVaccinationRate = data$cumfirstVaccination / data$pop
-  data$SecondVaccinationRate = data$cumsecondVaccination / data$pop
-  
   return(data)
 }
-data <- get.data.overall("nation", "England")
 
+data <- get.data()
