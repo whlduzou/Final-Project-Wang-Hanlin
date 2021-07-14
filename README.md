@@ -9,9 +9,9 @@
 (Forbid public events, schools and universities lock-down self-isolating if ill, social distancing encouraged and city lock-down)
 
 
-I add two variables (the environment temperature and the protest against the lock-down), because the virus is sensitive to the environment temperature and not all people would abide by the lock-down rules, they want to protest on the street consequence to the increase of reproduction number.
+I add two variables (**the environment temperature and the protest against the lock-down**), because the virus is sensitive to the environment temperature and not all people would abide by the lock-down rules, they want to protest on the street consequence to the increase of reproduction number.
 
-Also I change the dummy to the continuous variables (I would try factor variables later).
+Also **I change the dummy to the continuous variables (I would try factor variables later).**
 
 ## Assumption 2:
 
