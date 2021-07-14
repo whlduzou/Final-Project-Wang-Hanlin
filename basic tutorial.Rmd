@@ -28,27 +28,6 @@ data <- get.data()
 ```
 
 
-add the public isolation to the data
-
-1. school and university lock down at Mar $21^{st}$ 2020
-
-2. self-isolation if ill at Mar $12^{th}$ 2020
-
-3. public events forbidden at Mar $24^{th}$ 2020
-
-4. lock down at Mar $24^{th}$ 2020
-
-5. social distance encouraged at Mar $16^{th}$ 2020
-
-6. partial universities reopen after Sept $20^{th}$ 2020 (0.7)
-  school and university reopen at Mar $8^{th}$ 2021 (0.3)
-
-7. social distance encouraged end partially at Mar $29^{th}$ 2021
-
-8. public_events partially reopen at May $17^{th}$ 2021
-
-
-
 
 
 # checking
