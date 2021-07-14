@@ -2,14 +2,34 @@
 
 ### Wang Hanlin
 
-## Main Code
+## Assumption 1: 
 
-The main code of this project is the "basic tutorial.Rmd", other file is used to try some ideas of mine.
+**Only non-pharmaceutical interventions would impact the reproduction number**
 
-## temprature
+(Forbid public events, schools and universities lock-down self-isolating if ill, social distancing encouraged and city lock-down)
 
-The temprature data is downloaded from 'https://www.wunderground.com/history/monthly/gb/london/EGLW/date/2020-5', in which I use the London climate data to represent the whole UK
 
-## Protest
+I add two variables (the environment temperature and the protest against the lock-down), because the virus is sensitive to the environment temperature and not all people would abide by the lock-down rules, they want to protest on the street consequence to the increase of reproduction number.
 
-The protest data is downlaoded from Google trend, the key word is the "Protest" and the category is the "News". From the Google website, trend data is a weekly data, I use linear transformation transform the data to the daily data
+Also I change the dummy to the continuous variables (I would try factor variables later).
+
+## Assumption 2:
+
+**The distribution of the day from infection to death is constant.**
+
+I don’t think it is a good assumption. Also there is no specific medicine for the covid-19, the mechanical ventilation beds could definitely longer the survival time of the patients. However the number of mechanical ventilation beds is limited, many patients have no chance to use them. Hence when the more people in the mechanical ventilation beds, the shorter time from infection to death would be.
+
+Because this parameter in this package have to be constant, **I assume that this time in a certain range (or 1 month) of time would be constant, but would change based on the people mechanical ventilation beds**
+
+## Assumption 3:
+
+**The death case confirmed by the government is certainly the truth number in the UK (with the same criteria).**
+
+I think although it is certain that some death cases are omitted by the government, we cannot find the “truth number”, hence, this assumption should be held.
+
+## Assumption 4:
+
+**The serial interval of covid-19 and the days to seed infection would be constant.**
+
+I think it is the built-in attribute for the covid-19, which would not be impacted.
+
