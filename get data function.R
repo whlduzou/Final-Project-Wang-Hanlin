@@ -39,6 +39,63 @@ linear.impute <- function(file, j) {
   return(file)
 }
 
+# #impute.vac <- function(data) {
+#   # UK firstly injected vaccination from 8th Dec 2020
+#   # for (d in row.names(data)) {
+#   #   differ = as.numeric(difftime(d, '2020-12-8'))
+#   #   if (differ < 0) {
+#   #     data[
+#   #       d, c(
+#   #         "newfirstVaccination", "cumfirstVaccination",
+#   #         "newsecondVaccination", "cumsecondVaccination"
+#   #       )] <- c(0,0,0,0)
+#   #   }
+#   # }
+# 
+#   # linear impute the vaccination injection data
+#   # for (d in row.names(data)) {
+#   #   if (is.na(data[d, "cumfirstVaccination"])) {
+#   #     differ.all = as.numeric(difftime('2021-01-10', '2020-12-7'))
+#   #     differ = as.numeric(difftime(d, '2020-12-7'))
+#   #     cum <- data['2021-01-10', "cumfirstVaccination"] / differ.all
+#   #     data[d, "cumfirstVaccination"] <- round(cum * differ)
+#   #   }
+#   # }
+#   # for (d in row.names(data)) {
+#   #   if (is.na(data[d, "newfirstVaccination"])) {
+#   #     cum <- data[d, "cumfirstVaccination"]
+#   #     x <- ymd(d)
+#   #     day(x) <- day(d) - 1
+#   #     x <- as.character(x)
+#   #     data[d, "newfirstVaccination"] <- cum - data[x, "cumfirstVaccination"]
+#   #   }
+#   # }
+#   # for (d in row.names(data)) {
+#   #   if (is.na(data[d, "cumsecondVaccination"])) {
+#   #     if (difftime(d, '2021-01-04') > 0) {
+#   #       differ.all = as.numeric(difftime('2021-01-10', '2021-01-04'))
+#   #       differ = as.numeric(difftime(d, '2021-01-04'))
+#   #       cum <- data['2021-01-10', "cumsecondVaccination"] / differ.all
+#   #       data[d, "cumsecondVaccination"] <- round(cum * differ)
+#   #     } else {
+#   #       data[d, "cumsecondVaccination"] <- 0
+#   #     }
+#   #   }
+#   # }
+#   #
+#   # for (d in row.names(data)) {
+#   #   if (is.na(data[d, "newsecondVaccination"])) {
+#   #     cum <- data[d, "cumsecondVaccination"]
+#   #     x <- ymd(d)
+#   #     day(x) <- day(d) - 1
+#   #     x <- as.character(x)
+#   #     data[
+#   #       d, "newsecondVaccination"
+#   #     ] <- cum - data[x, "cumsecondVaccination"]
+#   #   }
+#   # }
+# #}
+
 add.policy <- function(data){
   library(dplyr)
   data$Government_announcements <- 0
@@ -195,7 +252,6 @@ get.env.data <- function(AREA_NAME) {
 }
 
 get.covid.data <- function(AREA_NAME) {
-  library(request)
   library(jsonlite)
   library(lubridate)
   # download data from the website
@@ -217,11 +273,11 @@ get.covid.data <- function(AREA_NAME) {
     # Patients in hospital
     hospital = "hospitalCases",
     ventilationbeds = "covidOccupiedMVBeds",
-    newfirstVaccination = "newPeopleVaccinatedFirstDoseByPublishDate",
-    cumfirstVaccination = "cumPeopleVaccinatedFirstDoseByPublishDate",
-    newsecondVaccination = "newPeopleVaccinatedSecondDoseByPublishDate",
-    cumsecondVaccination = "cumPeopleVaccinatedSecondDoseByPublishDate",
-    newVirusTests = "newPillarTwoTestsByPublishDate",
+    #newfirstVaccination = "newPeopleVaccinatedFirstDoseByPublishDate",
+    #cumfirstVaccination = "cumPeopleVaccinatedFirstDoseByPublishDate",
+    #newsecondVaccination = "newPeopleVaccinatedSecondDoseByPublishDate",
+    #cumsecondVaccination = "cumPeopleVaccinatedSecondDoseByPublishDate",
+    #newVirusTests = "newPillarTwoTestsByPublishDate",
     # Patients in mechanical ventilation beds
     Beds = "covidOccupiedMVBeds"
   )
@@ -250,61 +306,22 @@ get.covid.data <- function(AREA_NAME) {
   data$date <- as.Date(data$date)
   rownames(data) <- data$date
   
-  # UK firstly injected vaccination from 8th Dec 2020
-  for (d in row.names(data)) {
-    differ = as.numeric(difftime(d, '2020-12-8'))
-    if (differ < 0) {
-      data[
-        d, c(
-          "newfirstVaccination", "cumfirstVaccination",
-          "newsecondVaccination", "cumsecondVaccination"
-        )] <- c(0,0,0,0)
-    }
-  }
+
+  # data <- impute.vac(data)
   
-  # linear impute the vaccination injection data
-  for (d in row.names(data)) {
-    if (is.na(data[d, "cumfirstVaccination"])) {
-      differ.all = as.numeric(difftime('2021-01-10', '2020-12-7'))
-      differ = as.numeric(difftime(d, '2020-12-7'))
-      cum <- data['2021-01-10', "cumfirstVaccination"] / differ.all
-      data[d, "cumfirstVaccination"] <- round(cum * differ)
-    }
-  }
-  for (d in row.names(data)) {
-    if (is.na(data[d, "newfirstVaccination"])) {
-      cum <- data[d, "cumfirstVaccination"]
-      x <- ymd(d)
-      day(x) <- day(d) - 1
-      x <- as.character(x)
-      data[d, "newfirstVaccination"] <- cum - data[x, "cumfirstVaccination"]
-    }
-  }
-  for (d in row.names(data)) {
-    if (is.na(data[d, "cumsecondVaccination"])) {
-      if (difftime(d, '2021-01-04') > 0) {
-        differ.all = as.numeric(difftime('2021-01-10', '2021-01-04'))
-        differ = as.numeric(difftime(d, '2021-01-04'))
-        cum <- data['2021-01-10', "cumsecondVaccination"] / differ.all
-        data[d, "cumsecondVaccination"] <- round(cum * differ)
-      } else {
-        data[d, "cumsecondVaccination"] <- 0
-      }
-    }
-  }
-  
-  for (d in row.names(data)) {
-    if (is.na(data[d, "newsecondVaccination"])) {
-      cum <- data[d, "cumsecondVaccination"]
-      x <- ymd(d)
-      day(x) <- day(d) - 1
-      x <- as.character(x)
-      data[
-        d, "newsecondVaccination"
-      ] <- cum - data[x, "cumsecondVaccination"]
-    }
-  }
-  
+  # impute the date
+  date <- seq.Date(
+    from = as.Date(
+      "2020/01/05",format = "%Y/%m/%d"
+    ), by = "day",
+    length.out = as.numeric(
+      difftime(Sys.Date(), "2020-01-05")
+    )
+  )
+  data.date <- data.frame(date <- date)
+  data.date$Nation <- AREA_NAME
+  colnames(data.date) <- c("date", "Nation")
+  data <- left_join(data.date, data, by=c("date", "Nation"))
   
   # change the index
   data$index = c(1:nrow(data))
@@ -319,6 +336,7 @@ get.covid.data <- function(AREA_NAME) {
     }
   }
   data <- subset(data, select = -c(index))
+  
   return(data)
 }
 
@@ -328,6 +346,10 @@ get.data <- function() {
   for (nation in nation.list) {
       env.data <- get.env.data(AREA_NAME = nation)
       covid.data <- get.covid.data(AREA_NAME = nation)
+
+      data.temp <- inner_join(env.data, covid.data, by = c("date"))
+      data.temp <- add.policy(data.temp)
+      
       if (nation == "Wales") {
         data.temp$pop <- 3228120
       }
@@ -340,8 +362,7 @@ get.data <- function() {
       if (nation == "Northern Ireland") {
         data.temp$pop <- 1905484
       }
-      data.temp <- inner_join(env.data, covid.data, by = c("date"))
-      data.temp <- add.policy(data.temp)
+      
       data <- rbind(data, data.temp)
   }
   return(data)
