@@ -32,7 +32,8 @@ I think although it is certain that some death cases are omitted by the governme
 I think it is the built-in attribute for the covid-19, which would not be impacted.
 
 ## flowchart of a health person from infection to death
-
+```mermaid
+    flowchat
 st => start: a health person
 op1 => operation: the probability that infected by the covid-19 is based on the $R_t$
 op2 => operation: the $R_t$ is impacted by the lockdwon-associated variables, **temperature, protest condition** and, **comunity immunity could decrease $R_t$**
@@ -44,3 +45,4 @@ st -> op1 -> cond1
 op2 -> op1
 cond1(yes) -> op4
 cond1(no) -> op3(right) -> op1
+```
