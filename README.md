@@ -46,6 +46,15 @@ op2->op1
 cond1(yes)->op4
 cond1(no)->op3(right)->op1
 
+```
 
 
-
+```mermaid
+graph LR
+A[Import] -->B[Tidy]
+    B -->C{Understand}
+    C -->D[Transform]
+    C -->E[Vishualise]
+    C -->F[Model]
+    Understand -->G[Communicate]
+``````
