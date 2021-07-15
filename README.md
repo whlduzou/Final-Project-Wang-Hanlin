@@ -33,38 +33,14 @@ I think it is the built-in attribute for the covid-19, which would not be impact
 
 ## flowchart of a health person from infection to death
 ```flow
-
-st=>start: a health person
-op1=>operation: the probability that infected by the covid-19 is based on the $R_t$
-op2=>operation: the $R_t$ is impacted by the lockdwon-associated variables, **temperature, protest condition** and, **comunity immunity could decrease $R_t$**
-cond1=>condition: Is infected by the covid-19?
-op3=>operation: keep healthy
-op4 =>operation: become a infected person; case + 1
-
-st->op1->cond1
-op2->op1
-cond1(yes)->op4
-cond1(no)->op3(right)->op1
-
-```
-
-
-```mermaid
-graph LR
-A[Import] -->B[Tidy]
-    B -->C{Understand}
-    C -->D[Transform]
-    C -->E[Vishualise]
-    C -->F[Model]
-    Understand -->G[Communicate]
-```
-```flow
-st->in->cond1  // 进入第一个选择分支
-cond1(yes,right)->op1->cond2  
-// yes 表示a < b 逻辑为真时的流程走向
-// right 表示路径走向为向右，默认向下
-cond1(no)->cond2
-// 进入第二个选择分支
-cond2(yes,right)->op2->out->e
-cond2(no)->out->e
+    st=>start: a health person
+    op1=>operation: the probability that infected by the covid-19 is based on the $R_t$
+    op2=>operation: the $R_t$ is impacted by the lockdwon-associated variables, **temperature, protest condition** and, **comunity immunity could decrease $R_t$**
+    cond1=>condition: Is infected by the covid-19?
+    op3=>operation: keep healthy
+    op4 =>operation: become a infected person; case + 1
+    st->op1->cond1
+    op2->op1
+    cond1(yes)->op4
+    cond1(no)->op3(right)->op1
 ```
