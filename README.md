@@ -33,7 +33,7 @@ I think it is the built-in attribute for the covid-19, which would not be impact
 
 ## flowchart of a health person from infection to death
 ```mermaid
-    flowchat
+flowchat
 st => start: a health person
 op1 => operation: the probability that infected by the covid-19 is based on the $R_t$
 op2 => operation: the $R_t$ is impacted by the lockdwon-associated variables, **temperature, protest condition** and, **comunity immunity could decrease $R_t$**
