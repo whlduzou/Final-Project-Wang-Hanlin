@@ -37,7 +37,7 @@ plot.all <- function(time.start , time.end) {
   data.time <- filter(data, date < as.Date(time.end))
   data <- filter(data.time, date > as.Date(time.start))
   rt <- epirt(
-    formula = R(Nation, date) ~ 1+ (Protest||Nation) + Protest+
+    formula = R(Nation, date) ~ 1 + Protest + Temperature_Avg +
       schools_universities + Government_announcements +
       Legislation + Lockdown,
     prior = shifted_gamma(
@@ -56,6 +56,7 @@ plot.all <- function(time.start , time.end) {
   )
 
   deaths <- epiobs(
+    # assumption: the confirm deaths are always equal to the "truth deaths"
     formula = deaths ~ 1 ,
     i2o = EuropeCovid2$inf2death, 
     prior_intercept = normal(0.1, 0.01),
