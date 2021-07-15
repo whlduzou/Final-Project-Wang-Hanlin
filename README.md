@@ -32,6 +32,7 @@ I think although it is certain that some death cases are omitted by the governme
 I think it is the built-in attribute for the covid-19, which would not be impacted.
 
 ## flowchart of a health person from infection to death
+
 ```flow
     st=>start: a health person
     op1=>operation: the probability that infected by the covid-19 is based on the $R_t$
