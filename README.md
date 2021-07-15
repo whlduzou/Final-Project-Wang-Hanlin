@@ -57,4 +57,14 @@ A[Import] -->B[Tidy]
     C -->E[Vishualise]
     C -->F[Model]
     Understand -->G[Communicate]
-``````
+```
+```flow
+st->in->cond1  // 进入第一个选择分支
+cond1(yes,right)->op1->cond2  
+// yes 表示a < b 逻辑为真时的流程走向
+// right 表示路径走向为向右，默认向下
+cond1(no)->cond2
+// 进入第二个选择分支
+cond2(yes,right)->op2->out->e
+cond2(no)->out->e
+```
