@@ -4,7 +4,7 @@ output: pdf_document
 ---
 
 ```{r global_options, echo=FALSE, message=FALSE, warning=FALSE,include=FALSE, results='hide'}
-# preperation
+# preparation
 rm(list = ls())
 setwd("/Users/wanghanlin/Desktop/final project")
 knitr::opts_chunk$set(
@@ -36,6 +36,7 @@ library(epidemia)
 plot.all <- function(time.start , time.end) {
   data.time <- filter(data, date < as.Date(time.end))
   data <- filter(data.time, date > as.Date(time.start))
+  # reproduction number
   rt <- epirt(
     formula = R(Nation, date) ~ 1 + Protest + Temperature_Avg +
       schools_universities + Government_announcements +
@@ -54,9 +55,8 @@ plot.all <- function(time.start , time.end) {
     seed_days = 6L,
     pop_adjust = TRUE, pops = pop #population
   )
-
+  # the death case
   deaths <- epiobs(
-    # assumption: the confirm deaths are always equal to the "truth deaths"
     formula = deaths ~ 1 ,
     i2o = EuropeCovid2$inf2death, 
     prior_intercept = normal(0.1, 0.01),
