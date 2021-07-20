@@ -2,7 +2,13 @@
 
 ### Wang Hanlin
 
-## Assumptions: 
+## flowchart of the Bayesian Approach
+
+I use the idea of the Binomial Tree to infer the p(sampling)
+
+![avatar](./binomial trees.png)
+
+
 
 ### Assumptions from infection to death
 
@@ -31,12 +37,6 @@ I think although it is certain that some death cases are omitted by the governme
 
 I think it is the built-in attribute for the covid-19, which would not be impacted.
 
-## flowchart of the Bayesian Approach
+## flowchart from infection to death
 
-I use the idea of the Binomial Tree to infer the p(sampling)
-
-![avatar](./binomial trees.png)
-
-
-
-
+![avatar](./flowchart.png)
