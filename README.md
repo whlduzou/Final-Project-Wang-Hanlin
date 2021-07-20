@@ -39,4 +39,4 @@ I think it is the built-in attribute for the covid-19, which would not be impact
 
 I use the idea of the Binomial Tree to infer the p(sampling)
 
-![avatar](/binomial trees.png)
+![avatar](./binomial trees.png)
