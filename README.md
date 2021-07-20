@@ -37,8 +37,6 @@ I use the idea of the Binomial Tree to infer the p(sampling)
 
 ![avatar](/binomial trees.png)
 
-## flowchart of a health person from infection to death
 
-![avatar](./flowchart.png)
 
 
