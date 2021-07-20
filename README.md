@@ -6,7 +6,7 @@
 
 I use the idea of the Binomial Tree to infer the p(sampling)
 
-![avatar](./binomial trees.png)
+![avatar](/binomialtrees.png)
 
 
 
