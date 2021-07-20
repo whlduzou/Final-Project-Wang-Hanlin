@@ -269,7 +269,7 @@ get.covid.data <- function(AREA_NAME) {
     Nation = "areaName",
     date = "date", 
     cases = "newCasesByPublishDate",
-    deaths = "newDeaths28DaysByDeathDate", 
+    deaths = "newDailyNsoDeathsByDeathDate", 
     # Patients in hospital
     hospital = "hospitalCases",
     ventilationbeds = "covidOccupiedMVBeds",
