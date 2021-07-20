@@ -34,3 +34,9 @@ I think it is the built-in attribute for the covid-19, which would not be impact
 ## flowchart of a health person from infection to death
 
 ![avatar](/flowchart.png)
+
+## flowchart of the Bayesian Approach
+
+I use the idea of the Binomial Tree to infer the p(sampling)
+
+![avatar](/binomial trees.png)
