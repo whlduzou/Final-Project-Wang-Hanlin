@@ -101,7 +101,7 @@ plot.all <- function(time.start , time.end) {
 
 
 ```{r fig.cap="prior data until 10 1st, 2020", fig.align='center'}
-p <- plot.all(time.start = "2020-01-31", time.end = "2020-10-01")
+p <- plot.all(time.start = "2020-01-31", time.end = "2020-08-01")
 p$overall
 ```
 
