@@ -10,7 +10,7 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
 
 1. ![](http://latex.codecogs.com/svg.latex?p(symptom|covid-19)) keep constant
 
-   I assume ![](http://latex.codecogs.com/svg.latex?p(symptom| covid-19)) ~ ![](http://latex.codecogs.com/svg.latex?beta(39, 87)) 
+   I assume ![](http://latex.codecogs.com/svg.latex?p(symptom| covid-19)) ~ ![](http://latex.codecogs.com/svg.latex?Beta(39, 87)) 
 
    because in the REACT study , 39 patients reported symptoms while 87 did not. [1]
 
@@ -24,7 +24,7 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
 
 3. ![](http://latex.codecogs.com/svg.latex?p(hospital|symptom)) keep constant
 
-   we have known ![](http://latex.codecogs.com/svg.latex?p(hospital|covid-19)) ~ ![](http://latex.codecogs.com/svg.latex?Bin(908,430143)) [2]
+   we have known ![](http://latex.codecogs.com/svg.latex?p(hospital)) ~ ![](http://latex.codecogs.com/svg.latex?Bin(908,430143)) [2]
 
    
 
