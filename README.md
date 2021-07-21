@@ -2,11 +2,56 @@
 
 ### Wang Hanlin
 
-## flowchart of the Bayesian Approach
+## flowchart of the Simulation Approach
 
-I use the idea of the Binomial Tree to infer the p(sampling)
+I use the idea of the Binomial Tree to infer the the real cases numbers
 
-![avatar](/binomialtrees.png)
+### Assumptions
+
+1. ![](http://latex.codecogs.com/svg.latex?p(symptom|covid-19)) keep constant
+
+   I assume ![](http://latex.codecogs.com/svg.latex?p(symptom| covid-19)) ~ ![](http://latex.codecogs.com/svg.latex?Beta(39, 87)) 
+
+   because in the REACT study , 39 patients reported symptoms while 87 did not. [1]
+
+   [1]: https://spiral.imperial.ac.uk/handle/10044/1/83637 ""Community prevalence of SARS-CoV-2 virus in England during May 2020: REACT study""
+
+2. ![](http://latex.codecogs.com/svg.latex?\lambda) keep constant
+
+   ![](http://latex.codecogs.com/svg.latex?\lambda)   tends to be ![](http://latex.codecogs.com/svg.latex?1/8)
+
+   (I am finding reference)
+
+3. ![](http://latex.codecogs.com/svg.latex?p(hospital|symptom)) keep constant
+
+   We have known ![](http://latex.codecogs.com/svg.latex?p(hospital)) ~ ![](http://latex.codecogs.com/svg.latex?Beta(908,430143-908)) [2]. And 13.8% cases are servere cases, which are needed to admitted to hospital [3]. Supposing this 13.8% constant, the ![](http://latex.codecogs.com/svg.latex?p(hospital|symptom)) could be infered.
+
+   [2]: https://www.sciencedirect.com/science/article/pii/S088915912031309X	""Psychosocial factors and hospitalisations for COVID-19: Prospective cohort study based on a community sample""
+   [3]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    ""Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)""
+   
+
+4.  p(test| symptom&Not in hospital) keep constant
+    slightly willing = 60%; very willing = 90%; moderatly willing = 75% [4]
+    p(test| symptom)  = 0.8*75% + 0.2*90% = 78% Assuming all servere cases are willing to test, p(test| symptom&Not in hospital)  = (78%-13.8%)/(1-13.8%)= 0.7448
+    [4]: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3670514    ""Factors Affecting Willingness to be Tested for COVID-19""
+
+5. sensitivity of covid-19 test is constant
+    p(sensitivity) ~ Bin(449, 0.94) [5]
+    [5]: https://www.bmj.com/content/370/bmj.m3682.short    ""Covid-19: Point of care test reports 94% sensitivity and 100% specificity compared with laboratory test""
+
+6. 
+
+7. 
+
+8. 
+
+9. 
+
+10. 
+
+    
+
+### ![avatar](/binomialtrees.png)
 
 
 
