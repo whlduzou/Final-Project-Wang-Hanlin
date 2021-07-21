@@ -14,7 +14,7 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
 
    because in the REACT study , 39 patients reported symptoms while 87 did not ^[1]^
 
-   [1]: https://spiral.imperial.ac.uk/handle/10044/1/83637	"Community prevalence of SARS-CoV-2 virus in England during May 2020: REACT study"
+   [1]: https://spiral.imperial.ac.uk/handle/10044/1/83637"Community prevalence of SARS-CoV-2 virus in England during May 2020: REACT study"
 
 2.  $$\lambda$$ keep constant
 
