@@ -2,11 +2,45 @@
 
 ### Wang Hanlin
 
-## flowchart of the Bayesian Approach
+## flowchart of the Simulation Approach
 
-I use the idea of the Binomial Tree to infer the p(sampling)
+I use the idea of the Binomial Tree to infer the the real cases numbers
 
-![avatar](/binomialtrees.png)
+### Assumptions
+
+1. p(symptom|  covid-19) keep constant
+
+   I assume p(symptom|  covid-19) ~ beta(39, 87)
+
+   because in the REACT study , 39 patients reported symptoms while 87 did not ^[1]^
+
+   [1]: https://spiral.imperial.ac.uk/handle/10044/1/83637	""Community prevalence of SARS-CoV-2 virus in England during May 2020: REACT study""
+
+2.  $$\lambda$$ keep constant
+   $$
+   \lambda = 8
+   $$
+   
+
+3. 
+
+4. 
+
+5. 
+
+6. 
+
+7. 
+
+8. 
+
+9. 
+
+10. 
+
+    
+
+### ![avatar](/binomialtrees.png)
 
 
 
