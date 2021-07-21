@@ -8,7 +8,7 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
 
 ### Assumptions
 
-1. ![](http://latex.codecogs.com/svg.latex?p(symptom|\\ covid-19)) keep constant
+1. ![](http://latex.codecogs.com/svg.latex?p(symptom|covid-19)) keep constant
 
    I assume p(symptom|  covid-19) ~ beta(39, 87)
 
