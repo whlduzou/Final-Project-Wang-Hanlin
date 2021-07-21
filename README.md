@@ -10,17 +10,27 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
 
 1. ![](http://latex.codecogs.com/svg.latex?p(symptom|covid-19)) keep constant
 
-   I assume p(symptom|  covid-19) ~ beta(39, 87)
+   I assume ![](http://latex.codecogs.com/svg.latex?p(symptom| covid-19)) ~ ![](http://latex.codecogs.com/svg.latex?beta(39, 87)) 
 
-   because in the REACT study , 39 patients reported symptoms while 87 did not ^[1]^
+   because in the REACT study , 39 patients reported symptoms while 87 did not. [1]
 
    [1]: https://spiral.imperial.ac.uk/handle/10044/1/83637 ""Community prevalence of SARS-CoV-2 virus in England during May 2020: REACT study""
 
-2.  $$\lambda$$ keep constant
+2. ![](http://latex.codecogs.com/svg.latex?\lambda) keep constant
+
+   ![](http://latex.codecogs.com/svg.latex?\lambda)   tends to be ![](http://latex.codecogs.com/svg.latex?1/8)
+
+   (I am finding reference)
+
+3. ![](http://latex.codecogs.com/svg.latex?p(hospital|symptom)) keep constant
+
+   we have known ![](http://latex.codecogs.com/svg.latex?p(hospital|covid-19)) ~ ![](http://latex.codecogs.com/svg.latex?Bin(908,430143)) [2]
 
    
 
-3. 
+   [2]: https://www.sciencedirect.com/science/article/pii/S088915912031309X	""Psychosocial factors and hospitalisations for COVID-19: Prospective cohort study based on a community sample""
+
+   
 
 4. 
 
