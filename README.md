@@ -8,9 +8,9 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
 
 ### Assumptions
 
-1. ![](http://latex.codecogs.com/svg.latex?p(symptom|covid-19)) keep constant
+1. p(symptom|covid-19) keep constant
 
-   I assume ![](http://latex.codecogs.com/svg.latex?p(symptom| covid-19)) ~ ![](http://latex.codecogs.com/svg.latex?Beta(39, 87)) 
+   I assume p(symptom| covid-19) ~ Beta(39, 87)
 
    because in the REACT study , 39 patients reported symptoms while 87 did not. [1]
 
@@ -18,14 +18,14 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
 
 2. ![](http://latex.codecogs.com/svg.latex?\lambda) keep constant
 
-   ![](http://latex.codecogs.com/svg.latex?\lambda)   tends to be 0.1248 [2]
+   ![](http://latex.codecogs.com/svg.latex?\lambda) tends to be 0.1248 [2]
    
    In the reference the median is 5.2 hence, the expectation could be calculated
 
 
-3. ![](http://latex.codecogs.com/svg.latex?p(hospital|symptom)) keep constant
+3. p(hospital|symptom) keep constant
 
-   We have known ![](http://latex.codecogs.com/svg.latex?p(hospital)) ~ ![](http://latex.codecogs.com/svg.latex?Beta(908,430143-908)) [3]. And 13.8% cases are servere cases, which are needed to admitted to hospital [4]. Supposing this 13.8% constant, the ![](http://latex.codecogs.com/svg.latex?p(hospital|symptom)) could be infered.
+   13.8% cases are servere cases, which are needed to admitted to hospital [4]. Supposing this 13.8% constant, the p(hospital|symptom)) could be infered combined with the p(symptom|covid-19).
    
 
 4.  p(test| symptom&Not in hospital) keep constant
@@ -38,8 +38,6 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
     [1]: https://spiral.imperial.ac.uk/handle/10044/1/83637 ""Community prevalence of SARS-CoV-2 virus in England during May 2020: REACT study""
     
     [2]: https://www.acpjournals.org/doi/full/10.7326/M20-0504	""The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application""
-    
-   [3]: https://www.sciencedirect.com/science/article/pii/S088915912031309X	""Psychosocial factors and hospitalisations for COVID-19: Prospective cohort study based on a community sample""
    
    [4]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    ""Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)""
    
