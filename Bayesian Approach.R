@@ -4,7 +4,9 @@ library(tidyverse)
 source("get data function.R")
 data <- get.data()
 data <- filter(data, Nation == "England")
-data <- filter(data.time, date > as.Date("2020-01-31"))
+data <- filter(data.time, date > as.Date("2020-01-01"))
+data <- filter(data.time, date < as.Date("2020-06-01"))
+pop <- data$pop[1]
 data <- data %>% select(cases, hospital)
 
 
@@ -13,7 +15,7 @@ data {
   int<lower=0> N; 
   real<lower=0> Cases[N];
   real<lower=0> Hospital[N]; 
-  real<lower=0> pop;
+  int<lower=0> pop;
 }
 parameters {
   real<lower=0,upper=1> p_sampling[N];
@@ -21,46 +23,76 @@ parameters {
   real<lower=0,upper=1> p_servere;
   real<lower=0,upper=1> p_test;
   real<lower=0,upper=1> p_sensitive;
-  real<lower=0,upper=1> test_prior;
-  real<lower=0,upper=1> servere_prior;
-  real<lower=0> c[N];
+  real<lower=0,upper=1> p_hospital_symptom;
+  real mu[N];
+  real sigma[N];
 }
 transformed parameters {
-  real<lower=0,upper=1> p_hospital_symptom;
-  real<lower=0,upper=1> p_hospital_covid;
-  real<lower=0,upper=1> p_hospital;
-  real<lower=0,upper=1> p_cases_covid;
-  real<lower=0,upper=1> p_cases;
-  p_hospital_symptom <- p_servere / p_symptom;
-  p_hospital_covid <- p_sampling*p_servere;
-  p_hospital <- p_hospital_covid *p_sampling;
-  p_cases_covid  <- p_hospital_covid  + p_symptom*(1-p_hospital_symptom)*p_test*p_sensitive;
-  p_cases <- p_cases_covid *p_sampling;
+  real<lower=0,upper=1> p_hospital_covid[N];
+  real<lower=0,upper=1> p_hospital[N];
+  real<lower=0,upper=1> p_cases_covid[N];
+  real<lower=0,upper=1> p_cases[N];
+  
+  real<lower=0> E_hospital[N];
+  real<lower=0> Var_hospital[N];
+  real<lower=0> E_cases[N];
+  real<lower=0> Var_cases[N];
+  //p_hospital_symptom = p_servere / p_symptom;
+  for (n in 1:N) {
+      p_hospital_covid[n] = p_sampling[n] * p_servere;
+      p_hospital[n] = p_hospital_covid[n] * p_sampling[n];
+      E_hospital[n] = p_hospital[n] * pop;
+      Var_hospital[n] = p_hospital[n] * pop * (1 - p_hospital[n]);
+      p_cases_covid[n]  = p_hospital_covid[n] + p_symptom * (1 - p_hospital_symptom) * p_test * p_sensitive;
+      p_cases[n] = p_cases_covid[n] * p_sampling[n];
+      E_cases[n] = p_cases[n] * pop;
+      Var_cases[n] = p_cases[n] * pop * (1 - p_cases[n]);
+  }
 }
 model {
-  c ~ gamma(0.001, 0.001); // Non-informative prior
-  p_sampling ~ poission(c);
-  p_sympotm ~ beta(39,87);
-  servere_prior ~ beta(138, 862) // Informative prior
-  p_servere ~ bernoulli(servere_prior);
-  test_prior ~ beta(35,12) // Informative prior
-  p_test ~ bernoulli(test_prior);
-  p_sensitive ~ binomial(449, 0.94);
-  Hospital ~ binomial(pop, p_hospital);
-  Cases ~ binomial(pop, p_cases);
+  p_servere ~ normal(0.138, 0.0001188);
+  p_hospital_symptom ~ normal(0.4534, 0.005035);
+  mu ~ gamma(0.001, 0.001);
+  sigma ~ inv_gamma(0.001, 0.001);
+  p_sampling ~ normal(mu, sigma);
+  p_symptom ~ normal(0.3095, 0.001683);
+  p_test ~ normal(0.7448,0003961);
+  p_sensitive ~ normal(0.9399, 0.0001256);
+  Hospital ~ normal(E_hospital, Var_hospital);
+  Cases ~ normal(E_cases, Var_cases);
 }
 "
 
-
-mydat <- list(J = 8, y = c(28, 8, -3, 7, -1, 1, 18, 12),
-              sigma = c(15, 10, 16, 11, 9, 11, 10, 18))
-
-
-
+mydat <- list(
+  N = 148, Cases = data$cases, Hospital = data$hospital, pop=pop
+  )
 
 fit <- stan(model_code=mycode, data = mydat, iter = 1000, chains = 4)
 
-
-
+mycode <- "
+data {int J;}
+parameters {
+real p[J];
+for (j in 1:J){
+  p[j] = beta_rng(20,30);
+}
+}
+"
+mydat <- list(J = 10)
+fit <- stan(model_code=mycode, data = mydat, iter = 1000, chains = 4)
 
 print(fit)
+
+var <- var(rbeta(1000,138,862)/rbeta(1000,39,87))
+mu <- mean(rbeta(1000,138,862)/rbeta(1000,39,87))
+alpha <- mu^2*(1-mu)/var-mu
+beta <- alpha*(1-mu)/mu
+
+transformed parameters {
+  real pp[J]
+  
+  for (j in 1:J) {
+    pp[j] = exp(p[j])
+    
+  }
+}
