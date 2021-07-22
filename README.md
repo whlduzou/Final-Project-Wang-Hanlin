@@ -18,7 +18,7 @@ I use the idea of the Binomial Tree to infer the the real cases numbers
 
 2. ![](http://latex.codecogs.com/svg.latex?\lambda) keep constant
 
-   ![](http://latex.codecogs.com/svg.latex?\lambda)   tends to be ![](http://latex.codecogs.com/svg.latex?1/8) [2]
+   ![](http://latex.codecogs.com/svg.latex?\lambda)   tends to be 0.1248 [2]
    
    In the reference the median is 5.2 hence, the expectation could be calculated
 
