@@ -271,7 +271,7 @@ get.covid.data <- function(AREA_NAME) {
     cases = "newCasesByPublishDate",
     deaths = "newDailyNsoDeathsByDeathDate", 
     # Patients in hospital
-    hospital = "hospitalCases",
+    hospital = "newAdmissions",
     ventilationbeds = "covidOccupiedMVBeds",
     #newfirstVaccination = "newPeopleVaccinatedFirstDoseByPublishDate",
     #cumfirstVaccination = "cumPeopleVaccinatedFirstDoseByPublishDate",
