@@ -29,8 +29,6 @@ data <- get.data()
 
 
 
-
-# checking
 ```{r}
 library(epidemia)
 plot.death <- function(time.start , time.end) {
@@ -56,10 +54,10 @@ plot.death <- function(time.start , time.end) {
   )
   # the death case
   deaths <- epiobs(
-    formula = deaths ~ 1 + inhospital,
+    formula = deaths ~ 1,
     i2o = EuropeCovid2$inf2death, 
-    prior_intercept = normal(0, 0.4),
-    link = scaled_logit(0.038)
+    prior_intercept = normal(0, 0.5),
+    link = scaled_logit(0.05)
   )
 
   args <- list(
@@ -150,7 +148,7 @@ plot.beds <- function(time.start , time.end, data) {
   pr_args <- c(
     args, 
     list(
-      algorithm="sampling", iter=1e4, 
+      algorithm="sampling", iter=1e3, 
       prior_PD=TRUE, control = list(adapt_delta = 0.999)
       )
     )
@@ -158,7 +156,7 @@ plot.beds <- function(time.start , time.end, data) {
 
   p1 <- plot_rt(fm_prior, levels = c(30, 60, 95))
   args$algorithm <- "fullrank"
-  args$iter <- 10000
+  args$iter <- 1e4
   args$tol_rel_obj <- 1e-8
   fm <- do.call(epim, args)
   p2 <- plot_rt(
@@ -177,7 +175,7 @@ plot.beds <- function(time.start , time.end, data) {
 }
 ```
 
-```{r fig.cap="Simulation infection until Sept. 1st, 2020", fig.align='center', }
+```{r fig.cap="Simulation infection until Aug 1st, 2020", fig.align='center', }
 p.death <- plot.death(time.start = "2020-02-01", time.end = "2020-09-01")
 p.beds <- plot.beds(time.start = "2020-02-01", time.end = "2020-09-01", data.bed)
 cowplot::plot_grid(
@@ -185,14 +183,14 @@ cowplot::plot_grid(
     labels = c("Death", "Mechanical ventilation beds")
     )
 ```
-```{r fig.cap="Simulation reproduction number until Sept. 1st, 2020", fig.align='center'}
+```{r fig.cap="Simulation reproduction number until Aug 1st, 2020", fig.align='center'}
 cowplot::plot_grid(
     p.death$rt, p.beds$rt, nrow = 2, 
     labels = c("Death", "Mechanical ventilation beds")
     )
 ```
 
-```{r fig.cap="Fitness of obeservation data until Sept. 1st, 2020", fig.align='center'}
+```{r fig.cap="Fitness of obeservation data until Aug 1st, 2020", fig.align='center'}
 cowplot::plot_grid(
     p.death$obs, p.beds$obs, nrow = 2, 
     labels = c("Death", "Mechanical ventilation beds")
