@@ -26,8 +26,6 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 ![avatar](/chart/flowchartdeath.png)
 
-## flowchart of the Simulation Approach
-
 ## Using people in mechanical ventilation beds data to simulate the number of covid-19 cases
 
 ### Assumptions
@@ -46,7 +44,7 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 ### flowchart
 
-![avatar](/chart/flowchartdeath.png)
+![avatar](/chart/flowchartbeds.png)
 
 ## Reference
 
