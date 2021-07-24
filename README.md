@@ -50,9 +50,9 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 ## Reference
 
- [1]: https://www.nature.com/articles/s41586-020-2405-7 "Estimating the effects of non-pharmaceutical interventions on COVID-19 in Europe"
+ [1]: https://www.nature.com/articles/s41586-020-2405-7 Estimating the effects of non-pharmaceutical interventions on COVID-19 in Europe
 
- [2,4]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    "Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)"
+ [2,4]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)
 
- [3]: https://www.acpjournals.org/doi/full/10.7326/M20-0504    "The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application"
+ [3]: https://www.acpjournals.org/doi/full/10.7326/M20-0504    The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application
 
