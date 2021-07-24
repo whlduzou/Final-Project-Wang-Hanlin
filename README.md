@@ -22,7 +22,7 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 3. The day distribution of a person from infection to death is fixed, comfort a certain distribution [1]
 
-### flowchart
+### Flowchart
 
 ![avatar](/chart/flowchartdeath.png)
 
@@ -42,9 +42,15 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
     
 3. The day distribution of a person from infection to on the bed is fixed, comfort a certain distribution. Firstly, the day distribution from infection to have symptom is known, comforting a log-normal distribution[3]. Meanwhile, the WHO said, this mild patient would be severe quickly [4], I add a shift of this distribution. 
 
-### flowchart
+### Flowchart
 
 ![avatar](/chart/flowchartbeds.png)
+
+## Result
+
+It could be found that the common shape of the simulated cases are similar between this two approaches, but the number of them has a certain gap
+
+![avatar](/basic-tutorial.png)
 
 ## Reference
 
