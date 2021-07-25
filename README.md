@@ -6,7 +6,7 @@ This project use 2 approaches to simulate the daily increasing covid-19 cases.
 
 Here are the common assumptions of this model
 
-1. The serial interval of covid-19 keeps constant
+1. The serial interval of covid-19 keeps constant with the mean of 5 days [1,2]
 
 2. Non-pharmaceutical interventions would impact the reproduction number of covid-19
 
@@ -16,15 +16,11 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 ### Assumptions
 
-1. The probability that a infected patient would dead is constant (Mean = 1% Less than 2%)
+1. The probability that a infected patient would dead is constant (Mean = 0.66% ) [3]
 
 2. The daily death number is accurated. 
 
-3. The day distribution of a person from infection to death is fixed, comfort a certain distribution [1]
-
-### Flowchart
-
-![avatar](/chart/flowchartdeath.png)
+3. The day distribution of a person from infection to death is fixed, comfort a certain distribution [4]
 
 ## Using people in mechanical ventilation beds data to simulate the number of covid-19 cases
 
@@ -32,7 +28,7 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 1. The probability that a infected patient would on mechanical ventilation beds is constant
 
-    Using severe rate (13.8%) of covid-19 as the prior of this probability  [2]
+    Using severe rate (13.8%) of covid-19 as the prior of this probability  [5]
     
     Additional a small assumption: the severe rate in WUHAN at early stage is as same as in UK
 
@@ -40,11 +36,11 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
     Using Bayesian regression to cope to this problem.
     
-3. The day distribution of a person from infection to on the bed is fixed, comfort a certain distribution. Firstly, the day distribution from infection to have symptom is known, comforting a log-normal distribution[3]. Meanwhile, the WHO said, this mild patient would be severe quickly [4], I add a shift of this distribution. 
+3. The day distribution of a person from infection to on the bed is fixed, comfort a certain distribution. Firstly, the day distribution from infection to have symptom is known, comforting a log-normal distribution[6]. Meanwhile, the WHO said, this mild patient would be severe quickly [7], I add a shift of this distribution. 
 
-### Flowchart
+## Flowchart of 2 approaches
 
-![avatar](/chart/flowchartbeds.png)
+![avatar](/chart/flowchart.png)
 
 ## Result
 
@@ -54,9 +50,14 @@ It could be found that the common shape of the simulated cases are similar betwe
 
 ## Reference
 
- [1]: https://www.nature.com/articles/s41586-020-2405-7 Estimating the effects of non-pharmaceutical interventions on COVID-19 in Europe
+ [1,4]: https://www.nature.com/articles/s41586-020-2405-7 Estimating the effects of non-pharmaceutical interventions on COVID-19 in Europe
+ 
+ [2]: https://www.sciencedirect.com/science/article/pii/S2213398420301895 Estimates of serial interval for COVID-19: A systematic review and meta-analysis
+ 
+ [3]: https://www.bmj.com/content/369/bmj.m1327.long Covid-19: death rate is 0.66% and increases with age, study estimates 
 
- [2,4]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)
+ [5,7]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)
 
- [3]: https://www.acpjournals.org/doi/full/10.7326/M20-0504    The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application
+ [6]: https://www.acpjournals.org/doi/full/10.7326/M20-0504    The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application
+
 
