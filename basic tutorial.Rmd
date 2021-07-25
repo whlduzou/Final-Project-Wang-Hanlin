@@ -31,12 +31,14 @@ data <- get.data()
 
 ```{r}
 library(epidemia)
-plot.death <- function(time.start , time.end) {
+plot.cases <- function(
+  time.start , time.end, method = c("deaths", "Beds"), data) {
   data.time <- filter(data, date < as.Date(time.end))
   data <- filter(data.time, date > as.Date(time.start))
+  data$Protest <- log(data$Protest+1)/log(100)
   # reproduction number
   rt <- epirt(
-    formula = R(Nation, date) ~ 1 + 
+    formula = R(Nation, date) ~ 1 + Protest +
       schools_universities + Legislation + Lockdown,
     prior = shifted_gamma(
       shape=1/6, scale = 1, shift = log(1.05)/6
@@ -49,19 +51,27 @@ plot.death <- function(time.start , time.end) {
   # the infection model 
   inf <- epiinf(
     gen = EuropeCovid2$si, 
-    seed_days = 6L,
+    seed_days = which.max(EuropeCovid2$si),
     pop_adjust = TRUE, pops = pop #population
   )
-  # the death case
-  deaths <- epiobs(
-    formula = deaths ~ 1,
-    i2o = EuropeCovid2$inf2death, 
-    prior_intercept = normal(0, 0.5),
-    link = scaled_logit(0.05)
-  )
+  if (method == "deaths") {
+    observation <- epiobs(
+        formula = deaths ~ 1,
+        i2o = EuropeCovid2$inf2death, 
+        prior_intercept = normal(0, 0.2),
+        link = scaled_logit(0.0132)
+    )
+  } else if (method == "Beds") {
+    observation <- epiobs(
+        formula = Beds ~ 1 + inhospital,
+        i2o = dlnorm(1:20, 1.921, 0.428),   #https://www.acpjournals.org/doi/full/10.7326/M20-0504
+        link = scaled_logit(0.15),
+        prior_intercept = normal(0.1, 0.2)
+    )
+  }
 
   args <- list(
-    rt=rt, inf=inf, obs=deaths, 
+    rt=rt, inf=inf, obs=observation, 
     data=data, seed=12345, refresh=0
   )
   options(mc.cores = parallel::detectCores())
@@ -69,36 +79,36 @@ plot.death <- function(time.start , time.end) {
   pr_args <- c(
     args, 
     list(
-      algorithm="sampling", iter=1e3, 
+      algorithm="sampling", iter=1e4, 
       prior_PD=TRUE, control = list(adapt_delta = 0.99)
       )
     )
   fm_prior <- do.call(epim, pr_args)
 
-  p1 <- plot_rt(fm_prior, levels = c(30, 50, 95))
+  p1 <- plot_rt(fm_prior, levels = c(30, 60, 95))
   args$algorithm <- "fullrank"
   args$iter <- 5000
-  args$tol_rel_obj <- 1e-5
+  args$tol_rel_obj <- 1e-8
   fm <- do.call(epim, args)
   p2 <- plot_rt(
-    fm, step = T, levels = c(10, 30, 95)
+    fm, step = T, levels = c(30, 60, 95)
     )
   p3 <- plot_obs(
-    fm, type = "deaths", step = T, levels = c(10, 30, 95)
+    fm, type = method, step = T, levels = c(30, 60, 95)
     )
   p4 <- plot_infections(
-    fm, levels = c(30, 50, 95), step = T
+    fm, levels = c(30, 60, 95), step = T
     )
   p5 <- cowplot::plot_grid(
     p1, p2, p3, p4, nrow = 2, labels = LETTERS[1:4]
     )
   return(list(prior = p1, rt = p2, obs = p3, infection = p4, overall = p5))
 }
+
 ```
 
 
 ```{r}
-library(epidemia)
 data.bed <- data
 data.bed$index <- 1:nrow(data)
 coef <- lm(Beds ~ index, data.bed[89:105,])$coefficients
@@ -110,74 +120,11 @@ for (i in 1:89) {
     data.bed$Beds[i] <- b
   }
 }
-
-plot.beds <- function(time.start , time.end, data) {
-  data <- filter(data, date < as.Date(time.end))
-  data <- filter(data, date > as.Date(time.start))
-  # reproduction number
-  rt <- epirt(
-    formula = R(Nation, date) ~ 1  +
-      schools_universities + Legislation + Lockdown,
-    prior = shifted_gamma(
-      shape = 1/6, scale = 1, shift = log(1.05)/6),
-    prior_covariance = decov(
-      shape = c(2, rep(0.5, 5)), scale = 0.25),
-    link = scaled_logit(5.7)
-    )
-    
-  # the infection model 
-  inf <- epiinf(
-    gen = EuropeCovid2$si, 
-    seed_days = 6L,
-    pop_adjust = TRUE, pops = pop #population
-  )
-  # the hospital case
-  Beds <- epiobs(
-    formula = Beds ~ 1 + inhospital,
-    i2o = dlnorm(1:20, 1.921, 0.418), #https://www.acpjournals.org/doi/full/10.7326/M20-0504
-    link = scaled_logit(0.138),
-    prior_intercept = normal(0, 0.2)
-  )
-
-  args <- list(
-    rt=rt, inf=inf, obs=Beds, 
-    data=data, seed=12345, refresh=0
-  )
-  options(mc.cores = parallel::detectCores())
-
-  pr_args <- c(
-    args, 
-    list(
-      algorithm="sampling", iter=1e3, 
-      prior_PD=TRUE, control = list(adapt_delta = 0.999)
-      )
-    )
-  fm_prior <- do.call(epim, pr_args)
-
-  p1 <- plot_rt(fm_prior, levels = c(30, 60, 95))
-  args$algorithm <- "fullrank"
-  args$iter <- 1e4
-  args$tol_rel_obj <- 1e-8
-  fm <- do.call(epim, args)
-  p2 <- plot_rt(
-    fm, step = T, levels = c(30, 60, 95)
-    )
-  p3 <- plot_obs(
-    fm, type = "Beds", step = T, levels = c(30, 60, 95)
-    )
-  p4 <- plot_infections(
-    fm, levels = c(30, 60, 95), step = T
-    )
-  p5 <- cowplot::plot_grid(
-    p1, p2, p3, p4, nrow = 2, labels = LETTERS[1:4]
-    )
-  return(list(prior = p1, rt = p2, obs = p3, infection = p4, overall = p5))
-}
 ```
 
 ```{r fig.cap="Simulation infection until Aug 1st, 2020", fig.align='center', }
-p.death <- plot.death(time.start = "2020-02-01", time.end = "2020-09-01")
-p.beds <- plot.beds(time.start = "2020-02-01", time.end = "2020-09-01", data.bed)
+p.death <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "deaths", data = data)
+p.beds <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "Beds", data = data.bed)
 cowplot::plot_grid(
     p.death$infection, p.beds$infection, nrow = 2, 
     labels = c("Death", "Mechanical ventilation beds")
