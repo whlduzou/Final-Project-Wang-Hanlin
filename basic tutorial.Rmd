@@ -36,6 +36,7 @@ plot.cases <- function(
   data.time <- filter(data, date < as.Date(time.end))
   data <- filter(data.time, date > as.Date(time.start))
   data$Protest <- log(data$Protest+1)/log(100)
+  data$inhospital <- (log(data$inhospital+1)- min(log(data$inhospital+1), na.rm = TRUE))/(max(log(data$inhospital+1), na.rm = TRUE) - min(log(data$inhospital+1), na.rm = TRUE))
   # reproduction number
   rt <- epirt(
     formula = R(Nation, date) ~ 1 + Protest +
@@ -56,7 +57,7 @@ plot.cases <- function(
   )
   if (method == "deaths") {
     observation <- epiobs(
-        formula = deaths ~ 1,
+        formula = deaths ~ 1 + inhospital,
         i2o = EuropeCovid2$inf2death, 
         prior_intercept = normal(0, 0.2),
         link = scaled_logit(0.0132)
@@ -66,7 +67,8 @@ plot.cases <- function(
         formula = Beds ~ 1 + inhospital,
         i2o = dlnorm(1:20, 1.921, 0.428),   #https://www.acpjournals.org/doi/full/10.7326/M20-0504
         link = scaled_logit(0.15),
-        prior_intercept = normal(0.1, 0.2)
+        prior_intercept = normal(0.1, 0.2),
+        center = TRUE
     )
   }
 
