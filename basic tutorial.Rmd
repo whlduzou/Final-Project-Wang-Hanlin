@@ -37,10 +37,10 @@ plot.cases <- function(
   data <- filter(data.time, date > as.Date(time.start))
   # reproduction number
   rt <- epirt(
-#    formula = R(Nation, date) ~ 1 + Protest +
-#      schools_universities + Legislation + Lockdown,
-     formula = R(Nation, date) ~ 1 + Protest +
-      LRI + LRE ,
+   formula = R(Nation, date) ~ 1 + Protest +
+     schools_universities + Legislation + Lockdown,
+     # formula = R(Nation, date) ~ 1 + Protest +
+     #  LRI + LRE ,
     prior = shifted_gamma(
       shape=1/6, scale = 1, shift = log(1.05)/6
     ),
@@ -66,8 +66,8 @@ plot.cases <- function(
     observation <- epiobs(
         formula = Beds ~ 1 + inhospital,
         i2o = dlnorm(1:20, 1.921, 0.428),   #https://www.acpjournals.org/doi/full/10.7326/M20-0504
-        link = scaled_logit(0.15),
-        prior_intercept = normal(0.1, 0.1),
+        link = scaled_logit(0.276),
+        prior_intercept = normal(0, 0.2),
         center = TRUE
     )
   }
