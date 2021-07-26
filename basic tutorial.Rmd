@@ -35,6 +35,10 @@ plot.cases <- function(
   time.start , time.end, method = c("deaths", "Beds"), data) {
   data.time <- filter(data, date < as.Date(time.end))
   data <- filter(data.time, date > as.Date(time.start))
+<<<<<<< HEAD
+=======
+  data$Protest <- log(data$Protest+1)/log(100)
+>>>>>>> parent of a885563 (Update basic tutorial.Rmd)
   # reproduction number
   rt <- epirt(
    formula = R(Nation, date) ~ 1 + Protest +
@@ -57,7 +61,11 @@ plot.cases <- function(
   )
   if (method == "deaths") {
     observation <- epiobs(
+<<<<<<< HEAD
         formula = deaths ~ 1 ,
+=======
+        formula = deaths ~ 1,
+>>>>>>> parent of a885563 (Update basic tutorial.Rmd)
         i2o = EuropeCovid2$inf2death, 
         prior_intercept = normal(0, 0.2),
         link = scaled_logit(0.025) #?
@@ -66,9 +74,14 @@ plot.cases <- function(
     observation <- epiobs(
         formula = Beds ~ 1 + inhospital,
         i2o = dlnorm(1:20, 1.921, 0.428),   #https://www.acpjournals.org/doi/full/10.7326/M20-0504
+<<<<<<< HEAD
         link = scaled_logit(0.276),
         prior_intercept = normal(0, 0.2),
         center = TRUE
+=======
+        link = scaled_logit(0.15),
+        prior_intercept = normal(0.1, 0.2)
+>>>>>>> parent of a885563 (Update basic tutorial.Rmd)
     )
   }
   args <- list(
