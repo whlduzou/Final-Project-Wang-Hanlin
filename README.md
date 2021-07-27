@@ -10,6 +10,8 @@ Here are the common assumptions of this model
 
 2. Non-pharmaceutical interventions would impact the reproduction number of covid-19
 
+When reviewing the data, there is data missing in the beds data, hence a linear imputation has been used to impute the data of beds from 5^{th} Mar 2020 to 1^{st} Apr 2020
+
 ## Using death data to simulate the number of covid-19 cases
 
 Based on a few assumptions, daily covid-19 data could be simulated by the daily death data.
@@ -28,7 +30,7 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 1. The probability that a infected patient would on mechanical ventilation beds is constant
 
-    Using severe rate (13.8%) of covid-19 as the prior of this probability  [5]
+    Using severe rate (8.8%) of covid-19 as the prior of this probability  [5] 
     
     Additional a small assumption: the severe rate in WUHAN at early stage is as same as in UK
 
@@ -44,7 +46,7 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 ## Result
 
-It could be found that the common shape of the simulated cases are similar between this two approaches, but the number of them has a certain gap
+It could be found that the common shape of the simulated cases are similar between this two approaches, but the number of them has a small gap
 
 ![avatar](/basic-tutorial.png)
 
