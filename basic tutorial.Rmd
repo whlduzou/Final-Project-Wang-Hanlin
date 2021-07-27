@@ -27,24 +27,19 @@ source("get data function.R")
 data <- get.data("Nation")
 ```
 
-
-
 ```{r}
 library(epidemia)
 plot.cases <- function(
   time.start , time.end, method = c("deaths", "Beds"), data) {
   data.time <- filter(data, date < as.Date(time.end))
   data <- filter(data.time, date > as.Date(time.start))
-<<<<<<< HEAD
-=======
-  data$Protest <- log(data$Protest+1)/log(100)
->>>>>>> parent of a885563 (Update basic tutorial.Rmd)
+  data$inhospital <- (log(data$inhospital+1)- min(log(data$inhospital+1), na.rm = TRUE))/(max(log(data$inhospital+1), na.rm = TRUE) - min(log(data$inhospital+1), na.rm = TRUE))
+  data$I <- data$LRI - data$LRE
   # reproduction number
   rt <- epirt(
    formula = R(Nation, date) ~ 1 + Protest +
-     schools_universities + Legislation + Lockdown,
-     # formula = R(Nation, date) ~ 1 + Protest +
-     #  LRI + LRE ,
+     schools_universities +  Lockdown,
+    # formula = R(Nation, date) ~ 1 + Protest + I + schools_universities,
     prior = shifted_gamma(
       shape=1/6, scale = 1, shift = log(1.05)/6
     ),
@@ -56,32 +51,22 @@ plot.cases <- function(
   # the infection model 
   inf <- epiinf(
     gen = EuropeCovid2$si, 
-    seed_days = which.max(EuropeCovid2$si),
-    pop_adjust = TRUE, pops = pop #population
+    seed_days = 5
   )
   if (method == "deaths") {
     observation <- epiobs(
-<<<<<<< HEAD
-        formula = deaths ~ 1 ,
-=======
-        formula = deaths ~ 1,
->>>>>>> parent of a885563 (Update basic tutorial.Rmd)
+        formula = deaths ~ 1 + inhospital,
         i2o = EuropeCovid2$inf2death, 
-        prior_intercept = normal(0, 0.2),
-        link = scaled_logit(0.025) #?
+        prior_intercept = normal(0, 1),
+        link = scaled_logit(0.02)
     )
   } else if (method == "Beds") {
     observation <- epiobs(
         formula = Beds ~ 1 + inhospital,
         i2o = dlnorm(1:20, 1.921, 0.428),   #https://www.acpjournals.org/doi/full/10.7326/M20-0504
-<<<<<<< HEAD
-        link = scaled_logit(0.276),
-        prior_intercept = normal(0, 0.2),
+        link = scaled_logit(0.176),
+        prior_intercept = normal(0, 0.5),
         center = TRUE
-=======
-        link = scaled_logit(0.15),
-        prior_intercept = normal(0.1, 0.2)
->>>>>>> parent of a885563 (Update basic tutorial.Rmd)
     )
   }
   args <- list(
@@ -89,8 +74,7 @@ plot.cases <- function(
     data=data, seed=12345, refresh=0
   )
   options(mc.cores = parallel::detectCores())
-  
-    pr_args <- c(
+  pr_args <- c(
     args, 
     list(
       algorithm="sampling", iter=1e4, 
@@ -100,7 +84,7 @@ plot.cases <- function(
   fm_prior <- do.call(epim, pr_args)
   p1 <- plot_rt(fm_prior, levels = c(30, 60, 95))
   args$algorithm <- "fullrank"
-  args$iter <- 5000
+  args$iter <- 50000
   args$tol_rel_obj <- 1e-8
   fm <- do.call(epim, args)
   p2 <- plot_rt(
@@ -133,6 +117,7 @@ for (i in 1:89) {
   }
 }
 ```
+
 ```{r fig.cap="Simulation infection until Aug 1st, 2020", fig.align='center', }
 p.death <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "deaths", data = data)
 p.beds <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "Beds", data = data.bed)
@@ -154,4 +139,4 @@ cowplot::plot_grid(
     labels = c("Death", "Mechanical ventilation beds")
     )
 ```
-  
+
