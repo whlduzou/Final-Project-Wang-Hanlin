@@ -55,7 +55,7 @@ As to the posterior reproduction number, the round 1 REACT group result of it is
 The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 [12]
 
 
-![avatar](/basic-tutorial.png)
+![avatar](/chart/basic-tutorial.png)
 
 ## Reference
 
