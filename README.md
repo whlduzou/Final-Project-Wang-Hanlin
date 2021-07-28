@@ -10,7 +10,9 @@ Here are the common assumptions of this model
 
 2. Non-pharmaceutical interventions would impact the reproduction number of covid-19
 
-When reviewing the data, there is data missing in the beds data, hence a linear imputation has been used to impute the data of beds from 5^{th} Mar 2020 to 1^{st} Apr 2020
+3. During the simulation period, delta strain did not occur
+
+When reviewing the data, there is data missing in the beds data, hence a linear imputation has been used to impute the data of beds from 5 Mar 2020 to 1 Apr 2020
 
 ## Using death data to simulate the number of covid-19 cases
 
