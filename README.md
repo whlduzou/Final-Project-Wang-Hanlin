@@ -48,6 +48,10 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 It could be found that the common shape of the simulated cases are similar between this two approaches, but the number of them has a small gap
 
+As to the posterior reproduction number, the round 1 REACT group result of it is 0.57 (0.45, 0.72) between 1st May 2020 and 1 June 2020, which is identical with the simulation result [8] and the round 2 result is 0.89 (0.86, 0.93), between 1st May 2020 and early July 2020 [9]. The upwardation of reproduction number is as same as in the simulation result.
+
+The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million [10]
+
 ![avatar](/basic-tutorial.png)
 
 ## Reference
@@ -61,5 +65,10 @@ It could be found that the common shape of the simulated cases are similar betwe
  [5,7]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)
 
  [6]: https://www.acpjournals.org/doi/full/10.7326/M20-0504    The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application
+ 
+[8]:  https://spiral.imperial.ac.uk/handle/10044/1/83637 Community prevalence of SARS-CoV-2 virus in England during May 2020: REACT study
 
+[9]: https://spiral.imperial.ac.uk/handle/10044/1/83632 Transient dynamics of SARS-CoV-2 as England exited national lockdown
+
+[10]: https://www.nature.com/articles/s41467-021-21237-w SARS-CoV-2 antibody prevalence in England following the first peak of the pandemic
 
