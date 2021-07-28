@@ -19,6 +19,7 @@ font_import(
   pattern = "^Arial Narrow"
   )
 loadfonts(device = "postscript", quiet = TRUE)
+Sys.setlocale("LC_TIME","English")
 ```
 
 
@@ -64,7 +65,7 @@ plot.cases <- function(
     observation <- epiobs(
         formula = Beds ~ 1 + inhospital,
         i2o = dlnorm(1:20, 1.921, 0.428),   #https://www.acpjournals.org/doi/full/10.7326/M20-0504
-        link = scaled_logit(0.176),
+        link = scaled_logit(0.146),
         prior_intercept = normal(0, 0.5),
         center = TRUE
     )
@@ -109,7 +110,7 @@ data.bed <- data
 data.bed$index <- 1:nrow(data)
 data.bed$index2 <- data.bed$index^2
 data.bed$obs <- "Observation"
-coef <- lm(Beds ~ index + index2, data.bed[89:105,])$coefficients
+coef <- lm(Beds ~ index + index2, data.bed[89:125,])$coefficients
 for (i in 1:89) {
   b <- round(
     as.numeric(coef[1]) + as.numeric(coef[2]) * data.bed$index[i]
@@ -125,29 +126,133 @@ for (i in 1:89) {
 ```{r fig.cap="Simulation infection until Aug 1st, 2020", fig.align='center', }
 p.death <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "deaths", data = data)
 p.beds <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "Beds", data = data.bed)
+```
+```{r}
+data.death.infection <- p.death$infection$data
+data.bed.infection <- p.beds$infection$data
+
 cowplot::plot_grid(
     p.death$infection, p.beds$infection, nrow = 2, 
-    labels = c("Death", "Mechanical ventilation beds")
+    labels = c("Death", "Beds")
     )
 ```
+
+
 ```{r fig.cap="Simulation reproduction number until Aug 1st, 2020", fig.align='center'}
+add.react <- function(plot) {
+  plot <- plot + 
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-05-01'), xmax=as.Date('2020-06-01'), 
+        ymin=0.45, ymax=0.72),
+      fill='#FFFFE0',alpha = 0.02) +
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-05-01'), xmax=as.Date('2020-06-01'), 
+        ymin=0.56, ymax=0.57),
+      fill='#DAA520',alpha = 0.9) +
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-06-01'), xmax=as.Date('2020-07-01'), 
+        ymin=0.82, ymax=0.97),
+      fill='#FFFFE0',alpha = 0.02) +
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-06-01'), xmax=as.Date('2020-07-01'), 
+        ymin=0.885, ymax=0.895),
+      fill='#DAA520',alpha = 0.9) +
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-07-24'), xmax=as.Date('2020-08-11'), 
+        ymin=1.2, ymax=1.4),
+      fill='#FFFFE0',alpha = 0.02) +
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-07-24'), xmax=as.Date('2020-08-11'), 
+        ymin=1.295, ymax=1.305),
+      fill='#DAA520',alpha = 0.9) +  
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-08-22'), xmax=as.Date('2020-09-07'), 
+        ymin=1.4, ymax=2.0),
+      fill='#FFFFE0',alpha = 0.02) +
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-08-22'), xmax=as.Date('2020-09-07'), 
+        ymin=1.695, ymax=1.705),
+      fill='#DAA520',alpha = 0.9) +  
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-09-18'), xmax=as.Date('2020-09-26'), 
+        ymin=0.7, ymax=1.5),
+      fill='#FFFFE0',alpha = 0.02) +
+    geom_rect(
+      aes(
+        xmin=as.Date('2020-09-18'), xmax=as.Date('2020-09-26'), 
+        ymin=1.055, ymax=1.065),
+      fill='#DAA520',alpha = 0.9) 
+  return(plot)
+}
+death.rt <- add.react(p.death$rt)
+p.beds$rt <- add.react(p.beds$rt)
+
+p.beds$rt <- p.beds$rt + guides(fill=F) 
 cowplot::plot_grid(
     p.death$rt, p.beds$rt, nrow = 2, 
-    labels = c("Death", "Mechanical ventilation beds")
+    labels = c("Death", "Beds")
     )
 ```
 
 ```{r fig.cap="Fitness of obeservation data until Aug 1st, 2020", fig.align='center'}
+data.death.obs <- p.death$obs$data
+data.bed.obs <- p.beds$obs$data
+data.bed.obs$obs <- "Observation"
+data.bed.obs$obs[49:61] <- "Imputation"
+data.bed <- filter(data.bed, date < as.Date("2020-10-01"))
+data.bed <- filter(data.bed, date > as.Date("2020-02-01"))
+data.temp <- filter(data.bed.obs, level == "30")
+data.temp6 <- filter(data.bed.obs, level == "60")
+data.temp9 <- filter(data.bed.obs, level == "95")
+data.temp$simu <- 0.5*(data.temp$lower + data.temp$upper)
+data.temp$Beds <- data.bed$Beds
+
+p.beds$obs <- ggplot() + 
+  geom_line(
+    aes(date, simu), data = data.temp, 
+    lwd = 1, colour = "#102631") +
+  geom_bar(
+    aes(x = date, y = Beds, fill = obs), data = data.temp,
+    stat="identity") +
+  scale_x_date(date_breaks="3 week",date_labels="%d %b") +
+    scale_fill_manual(
+    values=c("#006400","#8B3E2F")) + 
+  scale_y_continuous(" ") +
+  geom_ribbon(
+    aes(ymin=lower, ymax=upper, x=date), data = data.temp,
+    alpha = 0.6, fill = "#236585") + 
+  geom_ribbon(
+    aes(ymin=lower, ymax=upper, x=date), data = data.temp6,
+    alpha = 0.4, fill = "#1A7796") + 
+  geom_ribbon(
+    aes(ymin=lower, ymax=upper, x=date), data = data.temp9,
+    alpha = 0.2, fill = "#447D99") + 
+  theme_bw() + guides(fill=F) + 
+  theme(
+    panel.border = element_blank(),plot.margin=unit(c(2,2,1,1.5), 'lines'),
+    axis.text.x= element_text(size = 11, angle=45, hjust=1))
+p.death$obs <- p.death$obs +
+  scale_y_continuous(" ") 
+
 cowplot::plot_grid(
-    p.death$obs, p.beds$obs, nrow = 2, 
-    labels = c("Death", "Mechanical ventilation beds")
+    p.death$obs, p.beds$obs, nrow = 2,
+    labels = c("Death", "Beds")
     )
 ```
 
 
 ```{r}
 library(ggplot2)
-Sys.setlocale("LC_TIME","English")
+
 time.start <- "2020-02-01"
 time.end <- "2020-10-01"
 data.bed <- filter(data.bed, date < as.Date(time.end))
