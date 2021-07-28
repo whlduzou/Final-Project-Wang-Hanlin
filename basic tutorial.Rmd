@@ -1,5 +1,4 @@
 ---
-title: "Moltilevel Model"
 output: pdf_document
 ---
 
@@ -19,6 +18,7 @@ font_import(
   pattern = "^Arial Narrow"
   )
 loadfonts(device = "postscript", quiet = TRUE)
+library(ggplot2)
 Sys.setlocale("LC_TIME","English")
 ```
 
@@ -109,7 +109,6 @@ plot.cases <- function(
 data.bed <- data
 data.bed$index <- 1:nrow(data)
 data.bed$index2 <- data.bed$index^2
-data.bed$obs <- "Observation"
 coef <- lm(Beds ~ index + index2, data.bed[89:125,])$coefficients
 for (i in 1:89) {
   b <- round(
@@ -118,19 +117,16 @@ for (i in 1:89) {
     )
   if (b > 0){
     data.bed$Beds[i] <- b
-    data.bed$obs[i] <- "Imputation"
   }
 }
 ```
 
-```{r fig.cap="Simulation infection until Aug 1st, 2020", fig.align='center', }
+```{r }
 p.death <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "deaths", data = data)
 p.beds <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "Beds", data = data.bed)
 ```
-```{r}
-data.death.infection <- p.death$infection$data
-data.bed.infection <- p.beds$infection$data
-
+```{r fig.cap="Simulation infection until Oct 1st, 2020", fig.align='center'}
+p.beds$infection <- p.beds$infection + guides(fill=F) 
 cowplot::plot_grid(
     p.death$infection, p.beds$infection, nrow = 2, 
     labels = c("Death", "Beds")
@@ -138,7 +134,7 @@ cowplot::plot_grid(
 ```
 
 
-```{r fig.cap="Simulation reproduction number until Aug 1st, 2020", fig.align='center'}
+```{r fig.cap="Simulation reproduction number until Oct 1st, 2020", fig.align='center'}
 add.react <- function(plot) {
   plot <- plot + 
     geom_rect(
@@ -193,9 +189,8 @@ add.react <- function(plot) {
       fill='#DAA520',alpha = 0.9) 
   return(plot)
 }
-death.rt <- add.react(p.death$rt)
+p.death$rt <- add.react(p.death$rt)
 p.beds$rt <- add.react(p.beds$rt)
-
 p.beds$rt <- p.beds$rt + guides(fill=F) 
 cowplot::plot_grid(
     p.death$rt, p.beds$rt, nrow = 2, 
@@ -203,7 +198,9 @@ cowplot::plot_grid(
     )
 ```
 
-```{r fig.cap="Fitness of obeservation data until Aug 1st, 2020", fig.align='center'}
+The yellow area means the result of r_t of the REACT group
+
+```{r fig.cap="Fitness of obeservation data until Oct 1st, 2020", fig.align='center'}
 data.death.obs <- p.death$obs$data
 data.bed.obs <- p.beds$obs$data
 data.bed.obs$obs <- "Observation"
@@ -250,37 +247,27 @@ cowplot::plot_grid(
 ```
 
 
-```{r}
-library(ggplot2)
-
+```{r fig.cap="Cases, beds and death data until Oct 1st, 2020", fig.align='center'}
 time.start <- "2020-02-01"
 time.end <- "2020-10-01"
 data.bed <- filter(data.bed, date < as.Date(time.end))
 data.bed <- filter(data.bed, date > as.Date(time.start))
-data.bed$uuu <- data.bed$cases * 1.2
-data.bed$ddd <- data.bed$cases * 0.8
-data.bed$uu <- data.bed$cases * 1.5
-data.bed$dd <- data.bed$cases * 0.5
-ggplot(data = data.bed) + 
-  geom_line(aes(date, cases), lwd = 1, colour = "darkblue") +
-  geom_bar(
-    aes(x = date, y = Beds, fill = obs), stat="identity") +
+new.data.case <- data.bed[,c("date", "cases")]
+new.data.case$type <- "Case"
+colnames(new.data.case) <- c("date", "num", "type")
+new.data.bed <- data.bed[,c("date", "Beds")]
+new.data.bed$type <- "Bed"
+colnames(new.data.bed) <- c("date", "num", "type")
+new.data.death <- data.bed[,c("date", "deaths")]
+new.data.death$type <- "Death"
+colnames(new.data.death) <- c("date", "num", "type")
+new.data <- rbind(new.data.case,new.data.bed,new.data.death)
+ggplot(
+  data = new.data, 
+  mapping = aes(x = date, y = num, colour = type)) + 
+  geom_line(lwd = 1) +
   scale_x_date(date_breaks="3 week",date_labels="%d %b") +
-    scale_fill_manual(
-    values=c("#006400","#8B3E2F")) + 
-  geom_ribbon(
-    aes(ymin=uuu, ymax=uu, x=date),
-    alpha = 0.3, fill = "#3D8CA6") + 
-  geom_ribbon(
-    aes(ymin=cases, ymax=uuu, x=date),
-    alpha = 0.6, fill = "#1A7796") + 
-  geom_ribbon(
-    aes(ymin=ddd, ymax=cases, x=date),
-    alpha = 0.6, fill = "#1A7796") + 
-  geom_ribbon(
-    aes(ymin=dd, ymax=ddd, x=date),
-    alpha = 0.3, fill = "#3D8CA6") + 
-  theme_bw() + guides(fill=F) + 
+  theme_bw() +  
   theme(
     panel.border = element_blank(),
     axis.text.x= element_text(angle=60, hjust=1))
