@@ -31,8 +31,8 @@ data <- get.data("Nation")
 library(epidemia)
 plot.cases <- function(
   time.start , time.end, method = c("deaths", "Beds"), data) {
-  data.time <- filter(data, date < as.Date(time.end))
-  data <- filter(data.time, date > as.Date(time.start))
+  data <- filter(data, date < as.Date(time.end))
+  data <- filter(data, date > as.Date(time.start))
   data$inhospital <- (log(data$inhospital+1)- min(log(data$inhospital+1), na.rm = TRUE))/(max(log(data$inhospital+1), na.rm = TRUE) - min(log(data$inhospital+1), na.rm = TRUE))
   data$I <- data$LRI - data$LRE
   # reproduction number
@@ -107,13 +107,17 @@ plot.cases <- function(
 ```{r}
 data.bed <- data
 data.bed$index <- 1:nrow(data)
-coef <- lm(Beds ~ index, data.bed[89:105,])$coefficients
+data.bed$index2 <- data.bed$index^2
+data.bed$obs <- "Observation"
+coef <- lm(Beds ~ index + index2, data.bed[89:105,])$coefficients
 for (i in 1:89) {
   b <- round(
     as.numeric(coef[1]) + as.numeric(coef[2]) * data.bed$index[i]
+    + as.numeric(coef[3]) * data.bed$index2[i]
     )
   if (b > 0){
     data.bed$Beds[i] <- b
+    data.bed$obs[i] <- "Imputation"
   }
 }
 ```
@@ -139,4 +143,50 @@ cowplot::plot_grid(
     labels = c("Death", "Mechanical ventilation beds")
     )
 ```
+
+
+```{r}
+library(ggplot2)
+Sys.setlocale("LC_TIME","English")
+time.start <- "2020-02-01"
+time.end <- "2020-10-01"
+data.bed <- filter(data.bed, date < as.Date(time.end))
+data.bed <- filter(data.bed, date > as.Date(time.start))
+data.bed$uuu <- data.bed$cases * 1.2
+data.bed$ddd <- data.bed$cases * 0.8
+data.bed$uu <- data.bed$cases * 1.5
+data.bed$dd <- data.bed$cases * 0.5
+ggplot(data = data.bed) + 
+  geom_line(aes(date, cases), lwd = 1, colour = "darkblue") +
+  geom_bar(
+    aes(x = date, y = Beds, fill = obs), stat="identity") +
+  scale_x_date(date_breaks="3 week",date_labels="%d %b") +
+    scale_fill_manual(
+    values=c("#006400","#8B3E2F")) + 
+  geom_ribbon(
+    aes(ymin=uuu, ymax=uu, x=date),
+    alpha = 0.3, fill = "#3D8CA6") + 
+  geom_ribbon(
+    aes(ymin=cases, ymax=uuu, x=date),
+    alpha = 0.6, fill = "#1A7796") + 
+  geom_ribbon(
+    aes(ymin=ddd, ymax=cases, x=date),
+    alpha = 0.6, fill = "#1A7796") + 
+  geom_ribbon(
+    aes(ymin=dd, ymax=ddd, x=date),
+    alpha = 0.3, fill = "#3D8CA6") + 
+  theme_bw() + guides(fill=F) + 
+  theme(
+    panel.border = element_blank(),
+    axis.text.x= element_text(angle=60, hjust=1))
+```
+
+
+
+
+
+
+
+
+
 
