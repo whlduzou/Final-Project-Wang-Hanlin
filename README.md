@@ -50,9 +50,9 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 It could be found that the common shape of the simulated cases are similar between this two approaches, but the number of them has a small gap
 
-As to the posterior reproduction number, the round 1 REACT group result of it is 0.57 (0.45, 0.72) between 1st May 2020 and 1 June 2020, which is identical with the simulation result [8] The round 2 result is 0.89 (0.86, 0.93), between 1st May 2020 and early July 2020 [9]. The round 3 result is 1.3 (1.2, 1.4) between 24 July 2020 and 7 Sept 2020 and round 4 result is 1.7 (1.4, 2.0) [10]. The upwardation of reproduction number is as same as in the simulation result, but the reproduction number in Augest tends to be underestimated.
+As to the posterior reproduction number, the round 1 REACT group result of it is 0.57 (0.45, 0.72) between 1st May 2020 and 1 June 2020, which is identical with the simulation result [8] The round 2 result is 0.89 (0.86, 0.93), between 1st May 2020 and early July 2020 [9]. The round 3 result is 1.3 (1.2, 1.4) between 24 July 2020 and 7 Sept 2020, round 4 result is 1.7 (1.4, 2.0) [10]. The round 5 result is 1.06 (0.74, 1.46) between 18 and 26 September 2020 [11]
 
-The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 [11]
+The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 [12]
 
 
 ![avatar](/basic-tutorial.png)
@@ -75,5 +75,7 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 
 [10]: https://spiral.imperial.ac.uk/handle/10044/1/83635 Resurgence of SARS-CoV-2 in England: detection by community antigen surveillance
 
-[11]: https://www.nature.com/articles/s41467-021-21237-w SARS-CoV-2 antibody prevalence in England following the first peak of the pandemic
+[11]: https://spiral.imperial.ac.uk/handle/10044/1/83691 High prevalence of SARS-CoV-2 swab positivity in England during September 2020: interim report of round 5 of REACT-1 study
+
+[12]: https://www.nature.com/articles/s41467-021-21237-w SARS-CoV-2 antibody prevalence in England following the first peak of the pandemic
 
