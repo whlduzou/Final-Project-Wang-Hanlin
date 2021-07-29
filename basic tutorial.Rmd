@@ -23,17 +23,17 @@ Sys.setlocale("LC_TIME","English")
 ```
 
 
-```{r get data}
+```{r get_data}
 source("get data function.R")
 data <- get.data("Nation")
 ```
 
-```{r}
+```{r model_set_up}
 library(epidemia)
 plot.cases <- function(
-  time.start , time.end, method = c("deaths", "Beds"), data) {
-  data <- filter(data, date < as.Date(time.end))
-  data <- filter(data, date > as.Date(time.start))
+  start , end, method = c("deaths", "Beds"), data) {
+  data <- filter(data, date < as.Date(end))
+  data <- filter(data, date > as.Date(start))
   data$inhospital <- (log(data$inhospital+1)- min(log(data$inhospital+1), na.rm = TRUE))/(max(log(data$inhospital+1), na.rm = TRUE) - min(log(data$inhospital+1), na.rm = TRUE))
   data$I <- data$LRI - data$LRE
   # reproduction number
@@ -105,12 +105,14 @@ plot.cases <- function(
 ```
 
 
-```{r}
+```{r imputation}
 data.bed <- data
 data.bed$index <- 1:nrow(data)
 data.bed$index2 <- data.bed$index^2
-coef <- lm(Beds ~ index + index2, data.bed[89:125,])$coefficients
-for (i in 1:89) {
+data.impute <- filter(data.bed, date < as.Date("2020-05-09"))
+data.impute <- filter(data.impute, date > as.Date("2020-04-01"))
+coef <- lm(Beds ~ index + index2, data.impute)$coefficients
+for (i in 1:nrow(data.bed)) {
   b <- round(
     as.numeric(coef[1]) + as.numeric(coef[2]) * data.bed$index[i]
     + as.numeric(coef[3]) * data.bed$index2[i]
@@ -118,13 +120,25 @@ for (i in 1:89) {
   if (b > 0){
     data.bed$Beds[i] <- b
   }
+  if (data.bed$date[i] >= as.Date("2020-04-02")) {
+    break
+  }
 }
 ```
 
-```{r }
-p.death <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "deaths", data = data)
-p.beds <- plot.cases(time.start = "2020-02-01", time.end = "2020-10-01", method = "Beds", data = data.bed)
+```{r fitness}
+time.start <- "2020-02-01"
+time.end <- "2020-10-01"
+p.death <- plot.cases(
+  start = time.start, end = time.end, 
+  method = "deaths", data = data
+  )
+p.beds <- plot.cases(
+  start = time.start, end = time.end, 
+  method = "Beds", data = data.bed
+  )
 ```
+
 ```{r fig.cap="Simulation infection until Oct 1st, 2020", fig.align='center'}
 p.beds$infection <- p.beds$infection + guides(fill=F) 
 cowplot::plot_grid(
@@ -134,7 +148,7 @@ cowplot::plot_grid(
 ```
 
 
-```{r fig.cap="Simulation reproduction number until Oct 1st, 2020", fig.align='center'}
+```{r reproduction_number, fig.cap="Simulation reproduction number until Oct 1st, 2020", fig.align='center'}
 add.react <- function(plot) {
   plot <- plot + 
     geom_rect(
@@ -200,7 +214,7 @@ cowplot::plot_grid(
 
 The yellow area means the result of r_t of the REACT group
 
-```{r fig.cap="Fitness of obeservation data until Oct 1st, 2020", fig.align='center'}
+```{r observation, fig.cap="Fitness of obeservation data until Oct 1st, 2020", fig.align='center'}
 data.death.obs <- p.death$obs$data
 data.bed.obs <- p.beds$obs$data
 data.bed.obs$obs <- "Observation"
@@ -247,11 +261,8 @@ cowplot::plot_grid(
 ```
 
 
-```{r fig.cap="Cases, beds and death data until Oct 1st, 2020", fig.align='center'}
-time.start <- "2020-02-01"
-time.end <- "2020-10-01"
-data.bed <- filter(data.bed, date < as.Date(time.end))
-data.bed <- filter(data.bed, date > as.Date(time.start))
+```{r cases, fig.cap="Cases, beds and death data until Oct 1st, 2020", fig.align='center'}
+
 new.data.case <- data.bed[,c("date", "cases")]
 new.data.case$type <- "Case"
 colnames(new.data.case) <- c("date", "num", "type")
@@ -261,11 +272,28 @@ colnames(new.data.bed) <- c("date", "num", "type")
 new.data.death <- data.bed[,c("date", "deaths")]
 new.data.death$type <- "Death"
 colnames(new.data.death) <- c("date", "num", "type")
-new.data <- rbind(new.data.case,new.data.bed,new.data.death)
-ggplot(
+new.data <- rbind(
+  new.data.case[-nrow(new.data.case),],
+  new.data.bed[-nrow(new.data.bed),],
+  new.data.death[-nrow(new.data.death),]
+  )
+p1 <- ggplot(
   data = new.data, 
   mapping = aes(x = date, y = num, colour = type)) + 
-  geom_line(lwd = 1) +
+  geom_line(lwd = 1) + 
+  scale_x_date(date_breaks="3 week",date_labels="%d %b %Y") +
+  theme_bw() +  
+  theme(
+    panel.border = element_blank(),
+    axis.text.x= element_text(angle=60, hjust=1))
+
+new.data <- filter(new.data, date < as.Date(end))
+new.data <- filter(new.data, date > as.Date(start))
+
+p2 <- ggplot(
+  data = new.data, 
+  mapping = aes(x = date, y = num, colour = type)) + 
+  geom_line(lwd = 1) + 
   scale_x_date(date_breaks="3 week",date_labels="%d %b") +
   theme_bw() +  
   theme(
