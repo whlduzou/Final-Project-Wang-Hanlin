@@ -12,7 +12,7 @@ Here are the common assumptions of this model
 
 3. During the simulation period, delta strain did not occur
 
-When reviewing the data, there is data missing in the beds data, hence a linear imputation has been used to impute the data of beds from 5 Mar 2020 to 1 Apr 2020
+When reviewing the data, there is data missing in the beds data, hence a quadratic imputation has been used to impute the data of beds from 5 Mar 2020 to 1 Apr 2020
 
 ## Using death data to simulate the number of covid-19 cases
 
@@ -60,15 +60,15 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 ## Reference
 
  [1,4]: https://www.nature.com/articles/s41586-020-2405-7 Estimating the effects of non-pharmaceutical interventions on COVID-19 in Europe
- 
+
  [2]: https://www.sciencedirect.com/science/article/pii/S2213398420301895 Estimates of serial interval for COVID-19: A systematic review and meta-analysis
- 
+
  [3]: https://www.bmj.com/content/369/bmj.m1327.long Covid-19: death rate is 0.66% and increases with age, study estimates 
 
  [5,7]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)
 
  [6]: https://www.acpjournals.org/doi/full/10.7326/M20-0504    The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application
- 
+
 [8]:  https://spiral.imperial.ac.uk/handle/10044/1/83637 Community prevalence of SARS-CoV-2 virus in England during May 2020: REACT study
 
 [9]: https://spiral.imperial.ac.uk/handle/10044/1/83632 Transient dynamics of SARS-CoV-2 as England exited national lockdown
