@@ -285,20 +285,28 @@ p1 <- ggplot(
   theme_bw() +  
   theme(
     panel.border = element_blank(),
-    axis.text.x= element_text(angle=60, hjust=1))
-
-new.data <- filter(new.data, date < as.Date(end))
-new.data <- filter(new.data, date > as.Date(start))
-
+    axis.text.x= element_text(angle=60, hjust=1),
+    legend.position = "top"
+    )
+new.data$date <- as.Date(new.data$date)
+new.dataa <- new.data[new.data$date < as.Date(time.end),]
+row.names(new.dataa) <- 1:nrow(new.dataa)
+new.dataa <- new.dataa[new.dataa$date > as.Date(time.start),]
 p2 <- ggplot(
-  data = new.data, 
+  data = new.dataa, 
   mapping = aes(x = date, y = num, colour = type)) + 
   geom_line(lwd = 1) + 
   scale_x_date(date_breaks="3 week",date_labels="%d %b") +
-  theme_bw() +  
+  theme_bw() + guides(fill=F) +  
   theme(
     panel.border = element_blank(),
-    axis.text.x= element_text(angle=60, hjust=1))
+    axis.text.x= element_text(angle=60, hjust=1),
+    legend.position = 'none'
+    )
+cowplot::plot_grid(
+    p1, p2, nrow = 2,
+    labels = c("A", "B")
+    )
 ```
 
 
