@@ -16,7 +16,7 @@ When reviewing the data, there is data missing in the beds data, hence a quadrat
 
 ## Using death data to simulate the number of covid-19 cases
 
-Based on a few assumptions, daily covid-19 data could be simulated by the daily death data. \R_t\
+Based on a few assumptions, daily covid-19 data could be simulated by the daily death data. R～t～
 
 ### Assumptions
 
