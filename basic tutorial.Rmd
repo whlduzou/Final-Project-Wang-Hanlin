@@ -2,7 +2,7 @@
 output: pdf_document
 ---
 
-```{r global_options, echo=FALSE, message=FALSE, warning=FALSE,include=FALSE, results='hide'}
+```{r global_options, echo=FALSE, message=FALSE, warning=FALSE,include=FALSE, results='hide', fig.width=6, fig.height=4}
 # preparation
 rm(list = ls())
 setwd("/Users/wanghanlin/Desktop/final project")
@@ -243,7 +243,9 @@ new.data.temp <- rbind(
 p.death$infection + geom_line(
   aes(x = date, y = num*100, colour = type), 
   lwd = 1, data = new.data.temp) +
-  scale_y_continuous(sec.axis = sec_axis(~ ./100), name = "Observe")
+  scale_y_continuous(
+    sec.axis = sec_axis(~ ./100, 
+    name = "Observe"))
 ```
 
 ```{r fig.cap="Simulation infection from daily on the Beds data until Oct 1st, 2020", fig.align='center'}
