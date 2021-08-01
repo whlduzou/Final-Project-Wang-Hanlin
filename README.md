@@ -26,7 +26,7 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 ### Assumptions and Simulation
 
-1. **The daily death number is accurated. **
+1. **The daily death number is accurated.**
 
 ![avatar](/chart/chart/chart_02.png)
 
