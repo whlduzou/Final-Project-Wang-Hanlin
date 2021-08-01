@@ -36,11 +36,11 @@ From figure 6, it could be found that this model fits the observed death data we
 
 3. **The day distribution of a person from infection to death is fixed, comfort a certain distribution** [10]
 
-![avatar](/chart/chart/chart_03.png)
+![avatar](/chart/chart/chart_04.png)
 
 Combining the assumption 2 & 3 and prior reproduction number, the posterior reproduction number could be infered as figure 4. Based on it, the daily increasing cases could be infered
 
-![avatar](/chart/chart/chart_04.png)
+![avatar](/chart/chart/chart_03.png)
 
 From the figure 2, it could be found that the **peak of simulated daily increasing cases is nearly 550K (450k ,980k) 95%**, which is approximately 20 days ahead of the peak of the daily data (1250). 
 
