@@ -41,7 +41,6 @@ plot.cases <- function(
   rt <- epirt(
    formula = R(Nation, date) ~ 1 + Protest +
      schools_universities +  Lockdown,
-    # formula = R(Nation, date) ~ 1 + Protest + I + schools_universities,
     prior = shifted_gamma(
       shape=2, scale = 1/3, shift = log(1.05)/6
     ),
@@ -58,7 +57,7 @@ plot.cases <- function(
   )
   if (method == "deaths") {
     observation <- epiobs(
-        formula = deaths ~ 1 + inhospital,
+        formula = deaths ~ 1,
         i2o = EuropeCovid2$inf2death, 
         prior_intercept = normal(0, 1),
         link = scaled_logit(0.02)
