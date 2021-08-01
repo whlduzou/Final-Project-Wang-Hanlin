@@ -68,15 +68,11 @@ Combining the assumption 2 & 3 and prior reproduction number, the posterior repr
 
 ![avatar](/chart/chart/chart_07.png)
 
-From the figure 2, it could be found that the **peak of simulated daily increasing cases is nearly 410K (330k ,610k) 95%**, which is approximately 20 days ahead of the peak of the daily increasing ventilation data (3250). 
+From the figure 2, it could be found that the shape of the simulated cases are similar between this two approaches, but the number of them has a small gapthe. The **peak of simulated daily increasing cases is nearly 410K (330k ,610k) 95%**, which is approximately 20 days ahead of the peak of the daily increasing ventilation data (3250). 
 
 ## Flowchart of 2 approaches
 
 ![avatar](/chart/flowchart.png)
-
-## Result
-
-It could be found that the common shape of the simulated cases are similar between this two approaches, but the number of them has a small gap
 
 ## Reference
 
