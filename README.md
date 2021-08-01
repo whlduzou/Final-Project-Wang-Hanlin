@@ -2,6 +2,31 @@
 
 ### Wang Hanlin
 
+**Firstly**, the lock-down policy would significantly **reduce the reproduction number** of the coronavirus, while the protest of the citizens would eliminate the efforts of lock-down. Hence, the shape of the prior reproduction number has been determined by the variation of these two conditions. To determine the number (location) of prior reproduction, the maximum reproduction number should be figured out at the early stage of epidemics(3.38, 95% confidence interval, 2.81 to 3.82) [a]. As the passage of time, the Real-time Assessment of Community Transmission (REACT) group has tested the monthly varied reproduction number. These results are also used to determine the parameters of prior reproduction number [8,9,10,11]. 
+
+![avatar](/chart/timeline.png)
+
+Because there are lots of lock-down and reopen policies for UK, if all policies are add to the model as dummy variables, the Pareto k diagnostic value would come the Inf, which means this model cannot fit well, hence, I combine all policy variables to a single continuious variable, meaning the effort of lockdown in UK. Below is the prior reproduction number of this project (the blue area is the result of REACT group)
+
+![avatar](/chart/chart_01.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 This project use 2 approaches to simulate the daily increasing covid-19 cases. 
 
 Here are the common assumptions of this model
@@ -58,6 +83,8 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 ![avatar](/chart/basic-tutorial.png)
 
 ## Reference
+
+[a]: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7280807/ Estimate of the Basic Reproduction Number for COVID-19: A Systematic Review and Meta-analysis
 
  [1,4]: https://www.nature.com/articles/s41586-020-2405-7 Estimating the effects of non-pharmaceutical interventions on COVID-19 in Europe
 
