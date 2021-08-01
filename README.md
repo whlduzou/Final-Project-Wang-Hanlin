@@ -8,7 +8,7 @@
 
 Because there are lots of lock-down and reopen policies for UK, if all policies are add to the model as dummy variables, the Pareto k diagnostic value would come the Inf, which means this model cannot fit well, hence, I combine all policy variables to a single continuious variable, meaning the effort of lockdown in UK. Below is the prior reproduction number of this project (the blue area is the result of REACT group)
 
-![avatar](/chart/chart_01.png)
+![avatar](/chart/chart/chart_01.png)
 
 
 
