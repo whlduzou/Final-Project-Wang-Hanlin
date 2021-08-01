@@ -32,8 +32,9 @@ data <- get.data("Nation")
 library(epidemia)
 plot.cases <- function(
   start , end, method = c("deaths", "Beds"), data) {
-  data <- filter(data, date < as.Date(end))
-  data <- filter(data, date > as.Date(start))
+  data <- data[data$date < as.Date(end),]
+  row.names(data) <- 1:nrow(data)
+  data <- data[data$date > as.Date(start),]
   data$inhospital <- (log(data$inhospital+1)- min(log(data$inhospital+1), na.rm = TRUE))/(max(log(data$inhospital+1), na.rm = TRUE) - min(log(data$inhospital+1), na.rm = TRUE))
   data$I <- data$LRI - data$LRE
   # reproduction number
@@ -42,11 +43,12 @@ plot.cases <- function(
      schools_universities +  Lockdown,
     # formula = R(Nation, date) ~ 1 + Protest + I + schools_universities,
     prior = shifted_gamma(
-      shape=1/6, scale = 1, shift = log(1.05)/6
+      shape=2, scale = 1/3, shift = log(1.05)/6
     ),
     prior_covariance = decov(
       shape = c(2, rep(0.5, 5)),scale=0.25
     ),
+    prior_intercept = rstanarm::normal(0.5,1),
     link = scaled_logit(5.7)
   )
   # the infection model 
@@ -127,8 +129,8 @@ for (i in 1:nrow(data.bed)) {
 ```
 
 ```{r fitness}
-time.start <- "2020-02-01"
-time.end <- "2020-10-01"
+time.start <- as.Date("2020-02-01")
+time.end <- as.Date("2020-10-01")
 p.death <- plot.cases(
   start = time.start, end = time.end, 
   method = "deaths", data = data
@@ -139,83 +141,136 @@ p.beds <- plot.cases(
   )
 ```
 
-```{r fig.cap="Simulation infection until Oct 1st, 2020", fig.align='center'}
-p.beds$infection <- p.beds$infection + guides(fill=F) 
-cowplot::plot_grid(
-    p.death$infection, p.beds$infection, nrow = 2, 
-    labels = c("Death", "Beds")
-    )
-```
-
-
-```{r reproduction_number, fig.cap="Simulation reproduction number until Oct 1st, 2020", fig.align='center'}
+```{r add_react_prior}
 add.react <- function(plot) {
   plot <- plot + 
     geom_rect(
       aes(
-        xmin=as.Date('2020-05-01'), xmax=as.Date('2020-06-01'), 
-        ymin=0.45, ymax=0.72),
-      fill='#FFFFE0',alpha = 0.02) +
+        xmin=as.Date('2020-05-01'), 
+        xmax=as.Date('2020-06-01'), 
+        ymin=0.445, ymax=0.725),
+      fill='#4169E1',alpha = 0.015) +
     geom_rect(
       aes(
-        xmin=as.Date('2020-05-01'), xmax=as.Date('2020-06-01'), 
-        ymin=0.56, ymax=0.57),
+        xmin=as.Date('2020-05-01'), 
+        xmax=as.Date('2020-06-01'), 
+        ymin=0.555, ymax=0.575),
       fill='#DAA520',alpha = 0.9) +
     geom_rect(
       aes(
-        xmin=as.Date('2020-06-01'), xmax=as.Date('2020-07-01'), 
-        ymin=0.82, ymax=0.97),
-      fill='#FFFFE0',alpha = 0.02) +
+        xmin=as.Date('2020-06-01'), 
+        xmax=as.Date('2020-07-01'), 
+        ymin=0.815, ymax=0.975),
+      fill='#4169E1',alpha = 0.015) +
     geom_rect(
       aes(
-        xmin=as.Date('2020-06-01'), xmax=as.Date('2020-07-01'), 
-        ymin=0.885, ymax=0.895),
+        xmin=as.Date('2020-06-01'), 
+        xmax=as.Date('2020-07-01'), 
+        ymin=0.88, ymax=0.9),
       fill='#DAA520',alpha = 0.9) +
     geom_rect(
       aes(
-        xmin=as.Date('2020-07-24'), xmax=as.Date('2020-08-11'), 
+        xmin=as.Date('2020-07-24'), 
+        xmax=as.Date('2020-08-11'), 
         ymin=1.2, ymax=1.4),
-      fill='#FFFFE0',alpha = 0.02) +
+      fill='#4169E1',alpha = 0.015) +
     geom_rect(
       aes(
-        xmin=as.Date('2020-07-24'), xmax=as.Date('2020-08-11'), 
-        ymin=1.295, ymax=1.305),
+        xmin=as.Date('2020-07-24'), 
+        xmax=as.Date('2020-08-11'), 
+        ymin=1.29, ymax=1.31),
       fill='#DAA520',alpha = 0.9) +  
     geom_rect(
       aes(
-        xmin=as.Date('2020-08-22'), xmax=as.Date('2020-09-07'), 
+        xmin=as.Date('2020-08-22'), 
+        xmax=as.Date('2020-09-07'), 
         ymin=1.4, ymax=2.0),
-      fill='#FFFFE0',alpha = 0.02) +
+      fill='#4169E1',alpha = 0.015) +
     geom_rect(
       aes(
-        xmin=as.Date('2020-08-22'), xmax=as.Date('2020-09-07'), 
-        ymin=1.695, ymax=1.705),
+        xmin=as.Date('2020-08-22'), 
+        xmax=as.Date('2020-09-07'), 
+        ymin=1.69, ymax=1.71),
       fill='#DAA520',alpha = 0.9) +  
     geom_rect(
       aes(
-        xmin=as.Date('2020-09-18'), xmax=as.Date('2020-09-26'), 
+        xmin=as.Date('2020-09-18'), 
+        xmax=as.Date('2020-09-26'), 
         ymin=0.7, ymax=1.5),
-      fill='#FFFFE0',alpha = 0.02) +
+      alpha = 0.015,fill='#4169E1') +
     geom_rect(
       aes(
-        xmin=as.Date('2020-09-18'), xmax=as.Date('2020-09-26'), 
-        ymin=1.055, ymax=1.065),
+        xmin=as.Date('2020-09-18'), 
+        xmax=as.Date('2020-09-26'), 
+        ymin=1.05, ymax=1.07),
       fill='#DAA520',alpha = 0.9) 
   return(plot)
 }
-p.death$rt <- add.react(p.death$rt)
-p.beds$rt <- add.react(p.beds$rt)
-p.beds$rt <- p.beds$rt + guides(fill=F) 
-cowplot::plot_grid(
-    p.death$rt, p.beds$rt, nrow = 2, 
-    labels = c("Death", "Beds")
+```
+
+```{r , fig.cap="Prior reproduction number until Oct 1st, 2020", fig.align='center'}
+add.react(p.death$prior)
+```
+
+The blue area is the result of REACT group, using the result of REACT group to set up parameters of reproduction number
+
+```{r}
+data.bed <- data.bed[data.bed$date < as.Date(time.end),]
+row.names(data.bed) <- 1:nrow(data.bed)
+data.bed <- data.bed[data.bed$date > as.Date(time.start),]
+new.data.case <- data.bed[,c("date", "cases")]
+new.data.case$type <- "Case"
+colnames(new.data.case) <- c("date", "num", "type")
+new.data.bed <- data.bed[,c("date", "Beds")]
+new.data.bed$type <- "Ventilated Bed (Observed)"
+new.data.bed$type[1:61] <- "Ventilated Bed (Imputation)"
+colnames(new.data.bed) <- c("date", "num", "type")
+new.data.death <- data.bed[,c("date", "deaths")]
+new.data.death$type <- "Death"
+colnames(new.data.death) <- c("date", "num", "type")
+new.data <- rbind(
+  new.data.case[-nrow(new.data.case),],
+  new.data.bed[-nrow(new.data.bed),],
+  new.data.death[-nrow(new.data.death),]
+  )
+```
+
+```{r fig.cap="Simulation infection from daily death data until Oct 1st, 2020", fig.align='center'}
+new.data.temp <- rbind(
+  filter(new.data, type == "Death"), 
+  filter(new.data, type == "Case")
+)
+p.death$infection + geom_line(
+  aes(x = date, y = num*100, colour = type), 
+  lwd = 1, data = new.data.temp) +
+  scale_y_continuous(sec.axis = sec_axis(~ ./100), name = "Observe")
+```
+
+```{r fig.cap="Simulation infection from daily on the Beds data until Oct 1st, 2020", fig.align='center'}
+new.data.temp <- filter(new.data, type != "Death")
+p.beds$infection + geom_line(
+  aes(x = date, y = num*100, colour = type), 
+  lwd = 1, data = new.data.temp) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ ./100, name = "Observe")
     )
 ```
 
-The yellow area means the result of r_t of the REACT group
+```{r , fig.cap="Simulation reproduction number from death data until Oct 1st, 2020", fig.align='center'}
+add.react(p.death$rt)
+```
 
-```{r observation, fig.cap="Fitness of obeservation data until Oct 1st, 2020", fig.align='center'}
-data.death.obs <- p.death$obs$data
+```{r reproduction_number, fig.cap="Simulation reproduction number from Ventilated beds data until Oct 1st, 2020", fig.align='center'}
+add.react(p.death$rt)
+```
+
+The blue area means the result of r_t of the REACT group
+
+```{r observation, fig.cap="Fitness of obeservation from death data until Oct 1st, 2020", fig.align='center'}
+p.death$obs
+```
+
+```{r , fig.cap="Fitness of obeservation from Ventilated beds data until Oct 1st, 2020", fig.align='center'}
 data.bed.obs <- p.beds$obs$data
 data.bed.obs$obs <- "Observation"
 data.bed.obs$obs[49:61] <- "Imputation"
@@ -254,63 +309,9 @@ p.beds$obs <- ggplot() +
 p.death$obs <- p.death$obs +
   scale_y_continuous(" ") 
 
-cowplot::plot_grid(
-    p.death$obs, p.beds$obs, nrow = 2,
-    labels = c("Death", "Beds")
-    )
+p.beds$obs
+
 ```
-
-
-```{r cases, fig.cap="Cases, beds and death data until Oct 1st, 2020", fig.align='center'}
-
-new.data.case <- data.bed[,c("date", "cases")]
-new.data.case$type <- "Case"
-colnames(new.data.case) <- c("date", "num", "type")
-new.data.bed <- data.bed[,c("date", "Beds")]
-new.data.bed$type <- "Bed"
-colnames(new.data.bed) <- c("date", "num", "type")
-new.data.death <- data.bed[,c("date", "deaths")]
-new.data.death$type <- "Death"
-colnames(new.data.death) <- c("date", "num", "type")
-new.data <- rbind(
-  new.data.case[-nrow(new.data.case),],
-  new.data.bed[-nrow(new.data.bed),],
-  new.data.death[-nrow(new.data.death),]
-  )
-p1 <- ggplot(
-  data = new.data, 
-  mapping = aes(x = date, y = num, colour = type)) + 
-  geom_line(lwd = 1) + 
-  scale_x_date(date_breaks="3 week",date_labels="%d %b %Y") +
-  theme_bw() +  
-  theme(
-    panel.border = element_blank(),
-    axis.text.x= element_text(angle=60, hjust=1),
-    legend.position = "top"
-    )
-new.data$date <- as.Date(new.data$date)
-new.dataa <- new.data[new.data$date < as.Date(time.end),]
-row.names(new.dataa) <- 1:nrow(new.dataa)
-new.dataa <- new.dataa[new.dataa$date > as.Date(time.start),]
-p2 <- ggplot(
-  data = new.dataa, 
-  mapping = aes(x = date, y = num, colour = type)) + 
-  geom_line(lwd = 1) + 
-  scale_x_date(date_breaks="3 week",date_labels="%d %b") +
-  theme_bw() + guides(fill=F) +  
-  theme(
-    panel.border = element_blank(),
-    axis.text.x= element_text(angle=60, hjust=1),
-    legend.position = 'none'
-    )
-cowplot::plot_grid(
-    p1, p2, nrow = 2,
-    labels = c("A", "B")
-    )
-```
-
-
-
 
 
 
