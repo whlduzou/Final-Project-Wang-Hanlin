@@ -314,6 +314,68 @@ p.beds$obs
 
 ```
 
+```{r log_normal}
+library(extremevalues)
+data.cum <- NULL
+log.normal.sigma <- function(Median, P, num) {
+  if (Median > num) {
+    P <- 2 * (0.5 - P/2) - 1
+  } else {
+    P <- 2 * (0.5 + P/2) - 1
+  }
+  sigma <- (log(num)-log(Median))/(sqrt(2)*invErf(P))
+  return(sigma)
+}
+data.infection.median <- p.death$infection$layers[[2]]$data
+data.infection <- p.death$infection$data
+for (i in 1:nrow(data.infection.median)) {
+  d <- data.infection.median$date[i]
+  data.infection.temp <- filter(data.infection, date == d)
+  m <- as.numeric(data.infection.median$median[i])
+  s <- 1
+  for (p in c(30, 60, 95)) {
+    data.infection.temp.level <- filter(
+      data.infection.temp, level == p)
+    s <- s * log.normal.sigma(
+      Median = m, P = p/100, 
+      num = as.numeric(data.infection.temp.level$lower)
+      )
+    s <- s * log.normal.sigma(
+      Median = m, P = p/100, 
+      num = as.numeric(data.infection.temp.level$upper)
+      )
+  }
+  s <- s^(1/6)
+  mu <- log(m)
+  data.cum <- rbind(data.cum, rlnorm(10000, meanlog = mu, sdlog = s))
+}
+
+for (i in 2:nrow(data.cum)) {
+  data.cum[i,] <- data.cum[i-1,] + data.cum[i,]
+}
+data.infection.median$low95 <- 0
+data.infection.median$low60 <- 0
+data.infection.median$low30 <- 0
+data.infection.median$up30 <- 0
+data.infection.median$up60 <- 0
+data.infection.median$up95 <- 0
+for (i in 1:nrow(data.infection.median)) {
+  cum <- sort(data.cum[i,])
+  data.infection.median$low95[i] <- cum[250]
+  data.infection.median$low60[i] <- cum[2000]
+  data.infection.median$low30[i] <- cum[3500]
+  data.infection.median$up30[i] <- cum[6500]
+  data.infection.median$up60[i] <- cum[8000]
+  data.infection.median$up95[i] <- cum[9750]
+}
+plot(data.infection.median$date, data.infection.median$up95, type = "l")
+line(data.infection.median$date, data.infection.median$low60)
+line(data.infection.median$date, data.infection.median$low30)
+line(data.infection.median$date, data.infection.median$up30)
+line(data.infection.median$date, data.infection.median$up60)
+line(data.infection.median$date, data.infection.median$low95)
+line(data.infection.median$date, data.infection.median$median)
+```
 
 
 
