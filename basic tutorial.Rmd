@@ -328,7 +328,9 @@ log.normal.sigma <- function(Median, P, num) {
 }
 data.infection.median.death <- p.death$infection$layers[[2]]$data
 data.infection.death <- p.death$infection$data
-cum.infection <- function(data.infection.median, data.infection) {
+data.infection.median.bed <- p.beds$infection$layers[[2]]$data
+data.infection.bed <- p.beds$infection$data
+cum.infection.plot <- function(data.infection.median, data.infection) {
   for (i in 1:nrow(data.infection.median)) {
   d <- data.infection.median$date[i]
   data.infection.temp <- filter(data.infection, date == d)
@@ -371,16 +373,59 @@ cum.infection <- function(data.infection.median, data.infection) {
   }
   return(data.infection.median)
 }
-cum.infection.death <- cum.infection(data.infection.median.death, data.infection.death)
+cum.infection.death <- cum.infection(
+  data.infection.median.death, data.infection.death)
+cum.infection.bed <- cum.infection(
+  data.infection.median.bed, data.infection.bed)
 
 
-plot(data.infection.median$date, data.infection.median$up95, type = "l")
-line(data.infection.median$date, data.infection.median$low60)
-line(data.infection.median$date, data.infection.median$low30)
-line(data.infection.median$date, data.infection.median$up30)
-line(data.infection.median$date, data.infection.median$up60)
-line(data.infection.median$date, data.infection.median$low95)
-line(data.infection.median$date, data.infection.median$median)
+ggplot() + 
+  geom_line(
+    aes(date, median), data = cum.infection.death, 
+    lwd = 1, colour = "black") +
+  geom_ribbon(
+    aes(ymin=low30, ymax=up30, x=date), data = cum.infection.death,
+    alpha = 0.6, fill = "#236585") + 
+  geom_ribbon(
+    aes(ymin=low60, ymax=up60, x=date), data = cum.infection.death,
+    alpha = 0.4, fill = "#1A7796") + 
+  geom_ribbon(
+    aes(ymin=low95, ymax=up95, x=date), data = cum.infection.death,
+    alpha = 0.2, fill = "#447D99") + 
+  geom_line(
+    aes(date, median), data = cum.infection.bed, 
+    lwd = 1, colour = "black") +
+  geom_ribbon(
+    aes(ymin=low30, ymax=up30, x=date), data = cum.infection.bed,
+    alpha = 0.6, fill = "#4D9C70") + 
+  geom_ribbon(
+    aes(ymin=low60, ymax=up60, x=date), data = cum.infection.bed,
+    alpha = 0.4, fill = "#8DBFA3") + 
+  geom_ribbon(
+    aes(ymin=low95, ymax=up95, x=date), data = cum.infection.bed,
+    alpha = 0.2, fill = "#D2E6DB") + 
+  scale_y_continuous("Cumlative Cases") +
+  annotate(
+    x = as.Date("2020-07-15"), xend = as.Date("2020-07-15"), 
+    y = 3.695*10^6, yend = 3.886*10^6, 
+    geom = "segment", size = 1, colour = "red") +
+  annotate(
+    x = as.Date("2020-07-13"), xend = as.Date("2020-07-17"), 
+    y = 3.695*10^6, yend = 3.695*10^6, 
+    geom = "segment", size = 0.5, colour = "red") +
+  annotate(
+    x = as.Date("2020-07-13"), xend = as.Date("2020-07-17"), 
+    y = 3.886*10^6, yend = 3.886*10^6, 
+    geom = "segment", size = 0.5, colour = "red") +
+  annotate(
+    x = as.Date("2020-07-10"), xend = as.Date("2020-07-20"), 
+    y = 3.822 *10^6, yend = 3.822 *10^6, 
+    geom = "segment", size = 0.8, colour = "red") +
+  theme_bw() +  
+  theme(
+    panel.border = element_blank(),
+    plot.margin=unit(c(2,2,1,1.5), 'lines'),
+    axis.text.x= element_text(size = 11, angle=45, hjust=1))
 ```
 
 
