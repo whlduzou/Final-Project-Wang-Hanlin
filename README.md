@@ -4,11 +4,11 @@
 
 ## Prior reproduction number
 
-The **lock-down** of city and schools would significantly **reduce the reproduction number** of the coronavirus, while the **protest** of the citizens would **eliminate** the efforts of lock-down. Hence, the shape of the prior reproduction number has been determined by the variation of these two conditions. To determine the number (location) of prior reproduction, the maximum reproduction number should be figured out at the early stage of epidemics(3.38, 95% confidence interval, 2.81 to 3.82) [1]. As the passage of time, the Real-time Assessment of Community Transmission (REACT) group has tested the monthly varied reproduction number. These results are also used to determine the parameters of prior reproduction number. The round 1 REACT group result of it is 0.57 (0.45, 0.72) between 1st May 2020 and 1 June 2020, which is identical with the simulation result [2] The round 2 result is 0.89 (0.86, 0.93), between 1st May 2020 and early July 2020 [3]. The round 3 result is 1.3 (1.2, 1.4) between 24 July 2020 and 7 Sept 2020, round 4 result is 1.7 (1.4, 2.0) [4]. The round 5 result is 1.06 (0.74, 1.46) between 18 and 26 September 2020 [5]. The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 [6].
+The **lock-down** of city and schools would significantly **reduce the reproduction number** of the coronavirus, while the **protest** of the citizens would **eliminate** the efforts of lock-down. Hence, the shape of the prior reproduction number has been determined by the variation of these two conditions. To determine the number (location) of prior reproduction, the maximum reproduction number should be figured out at the early stage of epidemics(3.38, 95% confidence interval, 2.81 to 3.82) [1]. 
 
 ![avatar](/chart/timeline.png)
 
-From figure 1, it could be found that there are lots of lock-down and reopen policies for UK, if all policies are add to the model as dummy variables, the Pareto k diagnostic value would come to the Inf, which means this model cannot fit well, hence, I **combine all policy variables to a single continuious variable**, meaning the effort of lockdown in UK. Below is the prior reproduction number of this project (the blue area is the result of REACT group)
+From figure 1, it could be found that there are lots of lock-down and reopen policies for UK, if all policies are add to the model as dummy variables, the Pareto k diagnostic value would come to the Inf, which means this model cannot fit well, hence, I **combine all policy variables to a single continuious variable**, meaning the effort of lock-down in UK. As the passage of time, the Real-time Assessment of Community Transmission (REACT) group has tested the monthly varied reproduction number. These results are also used to determine the parameters of prior reproduction number. The round 1 REACT group result of it is 0.57 (0.45, 0.72) between 1st May 2020 and 1 June 2020, which is identical with the simulation result [2] The round 2 result is 0.89 (0.86, 0.93), between 1st May 2020 and early July 2020 [3]. The round 3 result is 1.3 (1.2, 1.4) between 24 July 2020 and 7 Sept 2020, round 4 result is 1.7 (1.4, 2.0) [4]. The round 5 result is 1.06 (0.74, 1.46) between 18 and 26 September 2020 [5]. The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 [6]. Below is the prior reproduction number of this project (the blue area is the result of REACT group)
 
 ![avatar](/chart/chart/chart_01.png)
 
@@ -26,11 +26,11 @@ Based on a few assumptions, daily covid-19 data could be simulated by the daily 
 
 ### Assumptions and Simulation
 
-1. **The daily death number is accurated.**
+1. **The daily death number is accurate.**
 
 ![avatar](/chart/chart/chart_02.png)
 
-From figure 6, it could be found that this model fits the observed death data well
+From figure 6, it could be found that this model fits the observed death data well, nearly all observed death data are in the 95% confident interval of the fitted model. 
 
 2. **The probability that a infected patient would dead is constant (Mean = 0.66% )** [9]
 
@@ -38,11 +38,15 @@ From figure 6, it could be found that this model fits the observed death data we
 
 ![avatar](/chart/chart/chart_04.png)
 
-Combining the assumption 2 & 3 and prior reproduction number, the posterior reproduction number could be infered as figure 4. Based on it, the daily increasing cases could be infered
+Combining the assumption 2 & 3 and prior reproduction number, the posterior reproduction number could be inferred as figure 4 and the variance of the reproduction number is significantly reduced. Based on it, the daily increasing cases could be inferred.
 
 ![avatar](/chart/chart/chart_03.png)
 
 From the figure 2, it could be found that the **peak of simulated daily increasing cases is nearly 550K (450k ,980k) 95%**, which is approximately 20 days ahead of the peak of the daily data (1250). 
+
+The cumulative cases from these two approaches could been seen from figure 7, the result of REACT group is in the 60% CI of this simulation result
+
+![avatar](/chart/chart/chart_08.png)
 
 ## Using people in mechanical ventilation beds data to simulate the number of covid-19 cases
 
@@ -58,21 +62,21 @@ From the figure 7, it could be found that at the early stage of the epidmic, the
 
 2. The probability that a infected patient would on mechanical ventilated beds is constant
 
-    Using severe rate (7.3%) of covid-19 as the prior of this probability  [11] 
+    Using severe rate (13.8%) of covid-19 as the prior of this probability  [11] 
     
 3. The day distribution of a person from infection to on the bed is fixed, comfort a certain distribution. Firstly, the day distribution from infection to have symptom is known, comforting a log-normal distribution[12]. Meanwhile, the WHO said, this mild patient would be severe quickly [13], I add a shift of this distribution. 
 
 ![avatar](/chart/chart/chart_06.png)
 
-Combining the assumption 2 & 3 and prior reproduction number, the posterior reproduction number could be infered as figure 3. Based on it, the daily increasing cases could be infered
+Combining the assumption 2 & 3 and prior reproduction number, the posterior reproduction number could be infered as figure 5. Based on it, the daily increasing cases could be infered
 
 ![avatar](/chart/chart/chart_07.png)
 
-From the figure 2, it could be found that the shape of the simulated cases are similar between this two approaches, but the number of them has a small gapthe. The **peak of simulated daily increasing cases is nearly 410K (330k ,610k) 95%**, which is approximately 20 days ahead of the peak of the daily increasing ventilation data (3250). 
+From the figure 3, it could be found that the shape of the simulated cases are similar between this two approaches, but the number of them has a small gapthe. The **peak of simulated daily increasing cases is nearly 410K (330k ,610k) 95%**, which is approximately 20 days ahead of the peak of the daily increasing ventilation data (3250). 
 
-The cumulative cases from these two approaches could been seen from figure below
+The cumulative cases from these two approaches could been seen from figure 8, the result of REACT group is also in the 95% CI of this simulation result
 
-![avatar](/chart/chart/chart_08.png)
+![avatar](/chart/chart/chart_09.png)
 
 ## Flowchart of 2 approaches
 
