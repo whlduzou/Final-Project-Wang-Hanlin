@@ -306,9 +306,8 @@ p.beds$obs <- ggplot() +
     panel.border = element_blank(),plot.margin=unit(c(2,2,1,1.5), 'lines'),
     axis.text.x= element_text(size = 11, angle=45, hjust=1))
 
-p.death$obs <- p.death$obs 
 p.beds$obs <- p.beds$obs + theme(axis.title.x=element_blank())
-
+p.beds$obs
 ```
 
 ```{r cumulative}
