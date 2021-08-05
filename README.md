@@ -8,7 +8,7 @@ The **lock-down** of city and schools would significantly **reduce the reproduct
 
 ![avatar](/chart/timeline.png)
 
-From figure 1, it could be found that there are lots of lock-down and reopen policies for UK, if all policies are add to the model as dummy variables, the Pareto k diagnostic value would come to the Inf, which means this model cannot fit well, hence, I **combine all policy variables to a single continuious variable**, meaning the effort of lock-down in UK. As the passage of time, the Real-time Assessment of Community Transmission (REACT) group has tested the monthly varied reproduction number. These results are also used to determine the parameters of prior reproduction number. The round 1 REACT group result of it is 0.57 (0.45, 0.72) between 1st May 2020 and 1 June 2020, which is identical with the simulation result [2] The round 2 result is 0.89 (0.86, 0.93), between 1st May 2020 and early July 2020 [3]. The round 3 result is 1.3 (1.2, 1.4) between 24 July 2020 and 7 Sept 2020, round 4 result is 1.7 (1.4, 2.0) [4]. The round 5 result is 1.06 (0.74, 1.46) between 18 and 26 September 2020 [5]. The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 [6]. Below is the prior reproduction number of this project (the blue area is the result of REACT group)
+From figure 1, it could be found that there are lots of lock-down and reopen policies for UK, if all policies are add to the model as dummy variables, the Pareto k diagnostic value would come to the Inf, which means this model cannot fit well, hence, I **combine all policy variables to a single continuious variable**, meaning the effort of lock-down in UK. As the passage of time, the Real-time Assessment of Community Transmission (REACT) group has tested the monthly varied reproduction number. These results are also used to determine the parameters of prior reproduction number. The round 1 REACT group result of it is 0.57 (0.45, 0.72) between 1st May 2020 and 1 June 2020, which is identical with the simulation result [2] The round 2 result is 0.89 (0.86, 0.93), between 1st May 2020 and early July 2020 [3]. The round 3 result is 1.3 (1.2, 1.4) between 24 July 2020 and 7 Sept 2020, round 4 result is 1.7 (1.4, 2.0) [4]. The round 5 result is 1.06 (0.74, 1.46) between 18 and 26 September 2020 [5]. Figure 1 is the prior reproduction number of this project (the blue area is the result of REACT group)
 
 ![avatar](/chart/chart/chart_01.png)
 
@@ -44,7 +44,7 @@ Combining the assumption 2 & 3 and prior reproduction number, the posterior repr
 
 From the figure 2, it could be found that the **peak of simulated daily increasing cases is nearly 550K (450k ,980k) 95%**, which is approximately 20 days ahead of the peak of the daily data (1250). 
 
-The cumulative cases from these two approaches could been seen from figure 7, the result of REACT group is in the 60% CI of this simulation result
+The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 in the result of **REACT group (red)**[6].  And the similar experiment has conducted withe the **ONS, these results are the yellow one**. The Oxford University also has anther research in the **Oxford area (purple)**, indicating 5.3% (4%, 6.9%)  people have been infected. Meanwhile, in **Greater Glasgow region (green)**, 8.57% (6.095%, 11.05%) people have been infected. The cumulative cases simulated from the death data could been seen from figure 7.
 
 ![avatar](/chart/chart/chart_08.png)
 
@@ -74,7 +74,7 @@ Combining the assumption 2 & 3 and prior reproduction number, the posterior repr
 
 From the figure 3, it could be found that the shape of the simulated cases are similar between this two approaches, but the number of them has a small gapthe. The **peak of simulated daily increasing cases is nearly 410K (330k ,610k) 95%**, which is approximately 20 days ahead of the peak of the daily increasing ventilation data (3250). 
 
-The cumulative cases from these two approaches could been seen from figure 8, the result of REACT group is also in the 95% CI of this simulation result
+The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 in the result of **REACT group (red)**[6].  And the similar experiment has conducted withe the **ONS, these results are the yellow one**. The Oxford University also has anther research in the **Oxford area (purple)**, indicating 5.3% (4%, 6.9%)  people have been infected. Meanwhile, in **Greater Glasgow region (green)**, 8.57% (6.095%, 11.05%) people have been infected. The cumulative cases simulated from the ventilated beds data could been seen from figure 7.
 
 ![avatar](/chart/chart/chart_09.png)
 
