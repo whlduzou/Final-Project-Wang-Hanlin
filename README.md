@@ -44,7 +44,7 @@ Combining the assumption 2 & 3 and prior reproduction number, the posterior repr
 
 From the figure 2, it could be found that the **peak of simulated daily increasing cases is nearly 550K (450k ,980k) 95%**, which is approximately 20 days ahead of the peak of the daily data (1250). 
 
-The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 in the result of **REACT group (red)**[6].  And the similar experiment has conducted withe the **ONS, these results are the yellow one**. The Oxford University also has anther research in the **Oxford area (purple)**, indicating 5.3% (4%, 6.9%)  people have been infected. Meanwhile, in **Greater Glasgow region (green)**, 8.57% (6.095%, 11.05%) people have been infected. The cumulative cases simulated from the death data could been seen from figure 7.
+The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 in the result of **REACT group (red)**[6].  And the similar experiment has conducted withe the **ONS, these results are the yellow one** [14]. The Oxford University also has anther research in the **Oxford area (purple)**, indicating 5.3% (4%, 6.9%)  people have been infected. Meanwhile, in **Greater Glasgow region (green)**, 8.57% (6.095%, 11.05%) people have been infected. The cumulative cases simulated from the death data could been seen from figure 7.
 
 ![avatar](/chart/chart/chart_08.png)
 
@@ -54,7 +54,7 @@ When reviewing the data, there is data missing in the beds data, hence a quadrat
 
 ### Assumptions and Simulation
 
-1. The number of people in mechanical ventilation beds data is **not accurated**, influenced by the daily people in hospital becasue of the limitation of mechanical ventilation beds, many patients who need to be in mechanical ventilation beds but they do not on the beds
+1. The number of people in mechanical ventilation beds data is **not accurate**, influenced by the daily people in hospital becasue of the limitation of mechanical ventilation beds, many patients who need to be in mechanical ventilation beds but they do not on the beds
 
 ![avatar](/chart/chart/chart_05.png)
 
@@ -105,3 +105,6 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 [11,13]: https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19)    Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)
 
 [12]: https://www.acpjournals.org/doi/full/10.7326/M20-0504    The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application
+
+[14]: [Coronavirus (COVID-19) Infection Survey pilot - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/28may2020)  Coronavirus (COVID-19) Infection Survey pilot: 28 May 2020
+
