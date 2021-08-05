@@ -315,7 +315,7 @@ library(extremevalues)
 pop <- 66519604
 add.cum <- function(p) {
   p <- +
-  annotate(
+  annotate( # REACT
     x = as.Date("2020-07-15"), xend = as.Date("2020-07-15"), 
     y = 3.695*10^6, yend = 3.886*10^6, 
     geom = "segment", size = 0.8, colour = "red") +
@@ -330,7 +330,7 @@ add.cum <- function(p) {
   geom_point(mapping = aes(
     x = as.Date("2020-07-15"), y = 3.822*10^6, shape = 23), 
     size = 0.8, colour = "red") +
-  annotate(
+  annotate( # ONS
     x = as.Date("2020-04-26"), xend = as.Date("2020-06-02"), 
     y = 0.0521*pop, yend = 0.0521*pop, 
     geom = "segment", size = 0.8, colour = "yellow") +
@@ -375,7 +375,7 @@ add.cum <- function(p) {
   geom_point(mapping = aes(
     x = as.Date("2020-06-26"), y = 0.063*pop, shape = 23), 
     size = 0.8, colour = "yellow") +
-  annotate(
+  annotate( # Oxford
     x = as.Date("2020-04-14"), xend = as.Date("2020-06-15"), 
     y = 0.04*pop, yend = 0.04*pop, 
     geom = "segment", size = 0.8, colour = "purple") +
@@ -387,9 +387,24 @@ add.cum <- function(p) {
     x = as.Date("2020-05-15"), xend = as.Date("2020-05-15"), 
     y = 0.04*pop, yend = 0.069*pop, 
     geom = "segment", size = 0.8, colour = "purple") +
-  geom_point(mapping = aes(
+  geom_point(mapping = aes( 
     x = as.Date("2020-05-15"), y = 0.053*pop, shape = 23), 
     size = 0.8, colour = "purple") +
+  annotate( # Greater Glasgow region
+    x = as.Date("2020-04-18"), xend = as.Date("2020-04-20"), 
+    y = 0.06095*pop, yend = 0.06095*pop, 
+    geom = "segment", size = 0.8, colour = "green") +
+  annotate(
+    x = as.Date("2020-04-18"), xend = as.Date("2020-04-20"), 
+    y = 0.11047*pop, yend = 0.11047*pop, 
+    geom = "segment", size = 0.8, colour = "green") +
+  annotate(
+    x = as.Date("2020-04-19"), xend = as.Date("2020-04-19"), 
+    y = 0.06095*pop, yend = 0.11047*pop, 
+    geom = "segment", size = 0.8, colour = "green") +
+  geom_point(mapping = aes(
+    x = as.Date("2020-04-19"), y = 42/490*pop, shape = 23), 
+    size = 0.8, colour = "green") +
   return(p)
 }
 plot.cum.beds <- add.cum(p.beds$cum)
