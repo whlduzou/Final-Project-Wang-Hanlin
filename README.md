@@ -100,10 +100,16 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 
 [8]: [Estimates of serial interval for COVID-19: A systematic review and meta-analysis](https://www.sciencedirect.com/science/article/pii/S2213398420301895) 
 
-[9]: [Covid-19: death rate is 0.66% and increases with age, study estimates](https://www.bmj.com/content/369/bmj.m1327.long 
+[9]: [Covid-19: death rate is 0.66% and increases with age, study estimates](https://www.bmj.com/content/369/bmj.m1327.long)
 
 [11,13]: [Report of the WHO-China Joint Mission on Coronavirus Disease 2019 (COVID-19)](https://www.who.int/publications/i/item/report-of-the-who-china-joint-mission-on-coronavirus-disease-2019-(covid-19))   
 
 [12]: [The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application](https://www.acpjournals.org/doi/full/10.7326/M20-0504)    
 
-[14]: [Coronavirus (COVID-19) Infection Survey pilot: 28 May 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/28may2020)  
+[14]: [Coronavirus (COVID-19) Infection Survey pilot: 28 May 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/28may2020)
+
+[15]: [Coronavirus (COVID-19) Infection Survey pilot: 5 June 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/5june2020)
+
+[16]: [Coronavirus (COVID-19) Infection Survey pilot: 18 June 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/18june2020)
+
+[17]: [Coronavirus (COVID-19) Infection Survey pilot: 2 July 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/2july2020)
