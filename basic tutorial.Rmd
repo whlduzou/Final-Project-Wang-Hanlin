@@ -357,7 +357,7 @@ add.cum <- function(p) {
     geom = "segment", size = 0.8, colour = "red") +
   geom_point(mapping = aes(
     x = as.Date("2020-07-15"), y = 3.822*10^6), 
-    size = 0.8, shape = 18, colour = "red") +
+    size = 2.5, shape = 18, colour = "red") +
   annotate( # ONS
     x = as.Date("2020-04-26"), xend = as.Date("2020-06-02"), 
     y = 0.0521*pop, yend = 0.0521*pop, 
