@@ -35,7 +35,12 @@ plot.cases <- function(
   data <- data[data$date < as.Date(end),]
   row.names(data) <- 1:nrow(data)
   data <- data[data$date > as.Date(start),]
-  data$inhospital <- (log(data$inhospital+1)- min(log(data$inhospital+1), na.rm = TRUE))/(max(log(data$inhospital+1), na.rm = TRUE) - min(log(data$inhospital+1), na.rm = TRUE))
+  data$inhospital <- log(data$inhospital + 1)
+  data$inhospital <- (
+    data$inhospital- 
+      min(data$inhospital, na.rm = TRUE))/(
+        max(data$inhospital, na.rm = TRUE) - 
+          min(data$inhospital, na.rm = TRUE))
   data$I <- data$LRI - data$LRE
   # reproduction number
   rt <- epirt(
@@ -274,10 +279,10 @@ p.death$infection + geom_line(
 ```{r fig.cap="Simulation infection from daily on the Beds data until Oct 1st, 2020", fig.align='center'}
 new.data.temp <- filter(new.data, type != "Death")
 p.beds$infection + geom_line(
-  aes(x = date, y = num*50, colour = type), 
+  aes(x = date, y = num*15, colour = type), 
   lwd = 1, data = new.data.temp) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ ./50, name = "Observe")
+    sec.axis = sec_axis(~ ./15, name = "Observe")
     )
 ```
 
@@ -335,10 +340,9 @@ p.beds$obs
 ```
 
 ```{r cumulative}
-library(extremevalues)
 pop <- 66519604
 add.cum <- function(p) {
-  p <- +
+  p <- p +
   annotate( # REACT
     x = as.Date("2020-07-15"), xend = as.Date("2020-07-15"), 
     y = 3.695*10^6, yend = 3.886*10^6, 
@@ -352,8 +356,8 @@ add.cum <- function(p) {
     y = 3.886*10^6, yend = 3.886*10^6, 
     geom = "segment", size = 0.8, colour = "red") +
   geom_point(mapping = aes(
-    x = as.Date("2020-07-15"), y = 3.822*10^6, shape = 23), 
-    size = 0.8, colour = "red") +
+    x = as.Date("2020-07-15"), y = 3.822*10^6), 
+    size = 0.8, shape = 18, colour = "red") +
   annotate( # ONS
     x = as.Date("2020-04-26"), xend = as.Date("2020-06-02"), 
     y = 0.0521*pop, yend = 0.0521*pop, 
@@ -367,8 +371,8 @@ add.cum <- function(p) {
     y = 0.0521*pop, yend = 0.0864*pop, 
     geom = "segment", size = 0.8, colour = "yellow") +
   geom_point(mapping = aes(
-    x = as.Date("2020-05-14"), y = 0.0678*pop, shape = 23), 
-    size = 0.8, colour = "yellow") +
+    x = as.Date("2020-05-14"), y = 0.0678*pop), 
+    size = 5, shape = 18, colour = "yellow") +
   annotate(
     x = as.Date("2020-06-03"), xend = as.Date("2020-06-18"), 
     y = 0.043*pop, yend = 0.043*pop, 
@@ -382,8 +386,8 @@ add.cum <- function(p) {
     y = 0.043*pop, yend = 0.065*pop, 
     geom = "segment", size = 0.8, colour = "yellow") +
   geom_point(mapping = aes(
-    x = as.Date("2020-06-11"), y = 0.054*pop, shape = 23), 
-    size = 0.8, colour = "yellow") +
+    x = as.Date("2020-06-11"), y = 0.054*pop), 
+    size = 5, shape = 18, colour = "yellow") +
   annotate(
     x = as.Date("2020-06-19"), xend = as.Date("2020-07-02"), 
     y = 0.047*pop, yend = 0.047*pop, 
@@ -397,8 +401,8 @@ add.cum <- function(p) {
     y = 0.047*pop, yend = 0.081*pop, 
     geom = "segment", size = 0.8, colour = "yellow") +
   geom_point(mapping = aes(
-    x = as.Date("2020-06-26"), y = 0.063*pop, shape = 23), 
-    size = 0.8, colour = "yellow") +
+    x = as.Date("2020-06-26"), y = 0.063*pop), 
+    size = 5, colour = "yellow", shape = 18) +
   annotate( # Oxford
     x = as.Date("2020-04-14"), xend = as.Date("2020-06-15"), 
     y = 0.04*pop, yend = 0.04*pop, 
@@ -412,8 +416,8 @@ add.cum <- function(p) {
     y = 0.04*pop, yend = 0.069*pop, 
     geom = "segment", size = 0.8, colour = "purple") +
   geom_point(mapping = aes( 
-    x = as.Date("2020-05-15"), y = 0.053*pop, shape = 23), 
-    size = 0.8, colour = "purple") +
+    x = as.Date("2020-05-15"), y = 0.053*pop), 
+    size = 5, colour = "purple", shape = 18) +
   annotate( # Greater Glasgow region
     x = as.Date("2020-04-18"), xend = as.Date("2020-04-20"), 
     y = 0.06095*pop, yend = 0.06095*pop, 
@@ -427,8 +431,8 @@ add.cum <- function(p) {
     y = 0.06095*pop, yend = 0.11047*pop, 
     geom = "segment", size = 0.8, colour = "green") +
   geom_point(mapping = aes(
-    x = as.Date("2020-04-19"), y = 42/490*pop, shape = 23), 
-    size = 0.8, colour = "green") +
+    x = as.Date("2020-04-19"), y = 42/490*pop), 
+    size = 5, colour = "green", shape = 18)
   return(p)
 }
 plot.cum.beds <- add.cum(p.beds$cum)
