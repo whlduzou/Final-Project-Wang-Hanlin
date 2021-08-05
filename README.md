@@ -44,7 +44,7 @@ Combining the assumption 2 & 3 and prior reproduction number, the posterior repr
 
 From the figure 2, it could be found that the **peak of simulated daily increasing cases is nearly 550K (450k ,980k) 95%**, which is approximately 20 days ahead of the peak of the daily data (1250). 
 
-The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 in the result of **REACT group (red)**[6].  And the similar experiment has conducted withe the **ONS, these results are the yellow one** [14]. The Oxford University also has anther research in the **Oxford area (purple)**, indicating 5.3% (4%, 6.9%)  people have been infected. Meanwhile, in **Greater Glasgow region (green)**, 8.57% (6.095%, 11.05%) people have been infected. The cumulative cases simulated from the death data could been seen from figure 7.
+The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 15 July 2020 in the result of **REACT group (red)**[6].  And the similar experiment has conducted withe the **ONS, these results are the yellow one** [14, 15, 16, 17]. The Oxford University also has anther research in the **Oxford area (purple)**, indicating 5.3% (4%, 6.9%)  people have been infected [18]. Meanwhile, in **Greater Glasgow region (green)**, 8.57% (6.095%, 11.05%) people have been infected [19]. The cumulative cases simulated from the death data could been seen from figure 7.
 
 ![avatar](/chart/chart/chart_08.png)
 
@@ -113,3 +113,7 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 [16]: [Coronavirus (COVID-19) Infection Survey pilot: 18 June 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/18june2020)
 
 [17]: [Coronavirus (COVID-19) Infection Survey pilot: 2 July 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/2july2020)
+
+[18]: [SARS-CoV-2 antibody prevalence, titres and neutralising activity in an antenatal cohort, United Kingdom, 14 April to 15 June 2020](https://pubmed.ncbi.nlm.nih.gov/33094717)
+
+[19]: [Detection of neutralising antibodies to SARS-CoV-2 to determine population exposure in Scottish blood donors between March and May 2020](https://pubmed.ncbi.nlm.nih.gov/33094713)
