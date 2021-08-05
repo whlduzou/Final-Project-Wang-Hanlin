@@ -312,41 +312,88 @@ p.beds$obs
 
 ```{r cumulative}
 library(extremevalues)
-plot.cum.death <- p.death$cum +
+pop <- 66519604
+add.cum <- function(p) {
+  p <- +
   annotate(
     x = as.Date("2020-07-15"), xend = as.Date("2020-07-15"), 
     y = 3.695*10^6, yend = 3.886*10^6, 
-    geom = "segment", size = 1, colour = "red") +
+    geom = "segment", size = 0.8, colour = "red") +
   annotate(
     x = as.Date("2020-07-13"), xend = as.Date("2020-07-17"), 
     y = 3.695*10^6, yend = 3.695*10^6, 
-    geom = "segment", size = 0.5, colour = "red") +
+    geom = "segment", size = 0.8, colour = "red") +
   annotate(
     x = as.Date("2020-07-13"), xend = as.Date("2020-07-17"), 
     y = 3.886*10^6, yend = 3.886*10^6, 
-    geom = "segment", size = 0.5, colour = "red") +
+    geom = "segment", size = 0.8, colour = "red") +
+  geom_point(mapping = aes(
+    x = as.Date("2020-07-15"), y = 3.822*10^6, shape = 23), 
+    size = 0.8, colour = "red") +
   annotate(
-    x = as.Date("2020-07-10"), xend = as.Date("2020-07-20"), 
-    y = 3.822*10^6, yend = 3.822*10^6, 
-    geom = "segment", size = 0.8, colour = "red")
-  
-plot.cum.beds <- p.beds$cum +
+    x = as.Date("2020-04-26"), xend = as.Date("2020-06-02"), 
+    y = 0.0521*pop, yend = 0.0521*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
   annotate(
-    x = as.Date("2020-07-15"), xend = as.Date("2020-07-15"), 
-    y = 3.695*10^6, yend = 3.886*10^6, 
-    geom = "segment", size = 1, colour = "red") +
+    x = as.Date("2020-04-26"), xend = as.Date("2020-06-02"), 
+    y = 0.0864*pop, yend = 0.0864*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
   annotate(
-    x = as.Date("2020-07-13"), xend = as.Date("2020-07-17"), 
-    y = 3.695*10^6, yend = 3.695*10^6, 
-    geom = "segment", size = 0.5, colour = "red") +
+    x = as.Date("2020-05-14"), xend = as.Date("2020-05-14"), 
+    y = 0.0521*pop, yend = 0.0864*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
+  geom_point(mapping = aes(
+    x = as.Date("2020-05-14"), y = 0.0678*pop, shape = 23), 
+    size = 0.8, colour = "yellow") +
   annotate(
-    x = as.Date("2020-07-13"), xend = as.Date("2020-07-17"), 
-    y = 3.886*10^6, yend = 3.886*10^6, 
-    geom = "segment", size = 0.5, colour = "red") +
+    x = as.Date("2020-06-03"), xend = as.Date("2020-06-18"), 
+    y = 0.043*pop, yend = 0.043*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
   annotate(
-    x = as.Date("2020-07-10"), xend = as.Date("2020-07-20"), 
-    y = 3.822*10^6, yend = 3.822*10^6, 
-    geom = "segment", size = 0.8, colour = "red")
+    x = as.Date("2020-06-03"), xend = as.Date("2020-06-18"), 
+    y = 0.065*pop, yend = 0.065*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
+  annotate(
+    x = as.Date("2020-06-11"), xend = as.Date("2020-06-11"), 
+    y = 0.043*pop, yend = 0.065*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
+  geom_point(mapping = aes(
+    x = as.Date("2020-06-11"), y = 0.054*pop, shape = 23), 
+    size = 0.8, colour = "yellow") +
+  annotate(
+    x = as.Date("2020-06-19"), xend = as.Date("2020-07-02"), 
+    y = 0.047*pop, yend = 0.047*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
+  annotate(
+    x = as.Date("2020-06-19"), xend = as.Date("2020-07-02"), 
+    y = 0.081*pop, yend = 0.081*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
+  annotate(
+    x = as.Date("2020-06-26"), xend = as.Date("2020-06-26"), 
+    y = 0.047*pop, yend = 0.081*pop, 
+    geom = "segment", size = 0.8, colour = "yellow") +
+  geom_point(mapping = aes(
+    x = as.Date("2020-06-26"), y = 0.063*pop, shape = 23), 
+    size = 0.8, colour = "yellow") +
+  annotate(
+    x = as.Date("2020-04-14"), xend = as.Date("2020-06-15"), 
+    y = 0.04*pop, yend = 0.04*pop, 
+    geom = "segment", size = 0.8, colour = "purple") +
+  annotate(
+    x = as.Date("2020-04-14"), xend = as.Date("2020-06-15"), 
+    y = 0.069*pop, yend = 0.069*pop, 
+    geom = "segment", size = 0.8, colour = "purple") +
+  annotate(
+    x = as.Date("2020-05-15"), xend = as.Date("2020-05-15"), 
+    y = 0.04*pop, yend = 0.069*pop, 
+    geom = "segment", size = 0.8, colour = "purple") +
+  geom_point(mapping = aes(
+    x = as.Date("2020-05-15"), y = 0.053*pop, shape = 23), 
+    size = 0.8, colour = "purple") +
+  return(p)
+}
+plot.cum.beds <- add.cum(p.beds$cum)
+plot.cum.death <- add.cum(p.death$cum) 
 ```
 
 ```{r , fig.cap="Cumulative simulated cases from death data until Oct 1st, 2020", fig.align='center'}
