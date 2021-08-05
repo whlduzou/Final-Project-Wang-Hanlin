@@ -108,21 +108,44 @@ plot.cases <- function(
 
 
 ```{r imputation}
+
 data.bed <- data
 data.bed$index <- 1:nrow(data)
 data.bed$index2 <- data.bed$index^2
 data.impute <- filter(data.bed, date < as.Date("2020-05-09"))
 data.impute <- filter(data.impute, date > as.Date("2020-04-01"))
-coef <- lm(Beds ~ index + index2, data.impute)$coefficients
+reg <- lm(Beds ~ index + index2, data.impute)
+sigma <- sd(reg$residuals)
+coef <- reg$coefficients
 for (i in 1:nrow(data.bed)) {
+  seed <- 1234
   b <- round(
     as.numeric(coef[1]) + as.numeric(coef[2]) * data.bed$index[i]
-    + as.numeric(coef[3]) * data.bed$index2[i]
+    + as.numeric(coef[3]) * data.bed$index2[i] + rnorm(1, 0, sigma)
     )
   if (b > 0){
     data.bed$Beds[i] <- b
   }
   if (data.bed$date[i] >= as.Date("2020-04-02")) {
+    break
+  }
+}
+
+data.impute <- filter(data.bed, date < as.Date("2020-04-14"))
+data.impute <- filter(data.impute, date > as.Date("2020-03-26"))
+reg <- lm(inhospital ~ index , data.impute)
+sigma <- sd(reg$residuals)
+coef <- reg$coefficients
+for (i in 1:nrow(data.bed)) {
+  seed <- 1234
+  b <- round(
+    as.numeric(coef[1]) + as.numeric(coef[2]) * data.bed$index[i]
+    + rnorm(1, 0, sigma/5)
+    )
+  if (b > 0){
+    data.bed$inhospital[i] <- b
+  }
+  if (data.bed$date[i] > as.Date("2020-03-26")) {
     break
   }
 }
@@ -206,6 +229,7 @@ add.react <- function(plot) {
       fill='#DAA520',alpha = 0.9) 
   return(plot)
 }
+
 ```
 
 ```{r , fig.cap="Prior reproduction number until Oct 1st, 2020", fig.align='center'}
