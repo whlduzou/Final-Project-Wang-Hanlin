@@ -106,5 +106,4 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 
 [12]: https://www.acpjournals.org/doi/full/10.7326/M20-0504    The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application
 
-[14]: [Coronavirus (COVID-19) Infection Survey pilot - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/28may2020)  Coronavirus (COVID-19) Infection Survey pilot: 28 May 2020
-
+[14]: [Coronavirus (COVID-19) Infection Survey pilot: 28 May 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/28may2020)  
