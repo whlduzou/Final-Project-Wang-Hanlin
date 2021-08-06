@@ -50,7 +50,7 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 
 ## Using people in mechanical ventilation beds data to simulate the number of covid-19 cases
 
-When reviewing the data, there is data missing in the beds data, hence a quadratic imputation has been used to impute the data of beds from 5 Mar 2020 to 1 Apr 2020
+When reviewing the data, there is **data missing in the beds and in hospital data**, hence a quadratic imputation has been used to impute these data.
 
 ### Assumptions and Simulation
 
@@ -106,13 +106,13 @@ The cumulative covid-19 patient tends to be 3.822 (3.695, 3.886) million until 1
 
 [12]: [The Incubation Period of Coronavirus Disease 2019 (COVID-19) From Publicly Reported Confirmed Cases: Estimation and Application](https://www.acpjournals.org/doi/full/10.7326/M20-0504)    
 
-[14]: [Coronavirus (COVID-19) Infection Survey pilot: 28 May 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/28may2020)
+[14]: Coronavirus "COVID-19) Infection Survey pilot: 28 May 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/28may2020"
 
-[15]: [Coronavirus (COVID-19) Infection Survey pilot: 5 June 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/5june2020)
+[15]: Coronavirus "COVID-19) Infection Survey pilot: 5 June 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/5june2020"
 
-[16]: [Coronavirus (COVID-19) Infection Survey pilot: 18 June 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/18june2020)
+[16]: Coronavirus "COVID-19) Infection Survey pilot: 18 June 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/18june2020"
 
-[17]: [Coronavirus (COVID-19) Infection Survey pilot: 2 July 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/2july2020)
+[17]: Coronavirus "COVID-19) Infection Survey pilot: 2 July 2020 - Office for National Statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronaviruscovid19infectionsurveypilot/2july2020"
 
 [18]: [SARS-CoV-2 antibody prevalence, titres and neutralising activity in an antenatal cohort, United Kingdom, 14 April to 15 June 2020](https://pubmed.ncbi.nlm.nih.gov/33094717)
 
