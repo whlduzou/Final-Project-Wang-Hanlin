@@ -26,6 +26,62 @@ Sys.setlocale("LC_TIME","English")
 ```{r get_data}
 source("get data function.R")
 data <- get.data("Nation")
+time.start <- as.Date("2020-02-01")
+time.end <- as.Date("2020-10-01")
+data <- filter(data, date < time.end)
+data <- filter(data, date > time.start)
+
+data.plot.each <- function(type, data.import) {
+  if (type %in% c("Protest", "Lockdown", "schools_universities")) {
+    data.import[[type]] <-
+      data.import[[type]]/max(data.import[[type]])*20000
+  }
+  data.value <- data.frame(
+  cbind(
+    as.character(data.import$date), 
+    data.import[[type]], 
+    rep(type, nrow(data.import)
+          )
+      )
+  )
+  colnames(data.value) <- c("date", "value", "type")
+  data.value$date <- as.Date(data.value$date)
+  return(data.value)
+}
+
+data.plot.01 <- rbind(
+  data.plot.each("Protest", data),
+  data.plot.each("Lockdown", data),
+  data.plot.each("schools_universities", data)
+)
+data.plot.01$value <- as.numeric(data.plot.01$value)
+data.plot.01$line <- "NPI"
+data.plot <- rbind(
+  data.plot.each("cases", data),
+  data.plot.each("deaths", data),
+  data.plot.each("inhospital", data),
+  data.plot.each("Beds", data)
+)
+data.plot$value <- as.numeric(data.plot$value)
+data.plot$line <- "Observations"
+data.plot.all <- rbind(data.plot.01, data.plot)
+
+ggplot(
+  data.plot.all, 
+  aes(x = date, y = value, colour = type, linetype = line)) +
+  geom_line() +
+  scale_x_date(date_breaks="3 week",date_labels="%d %b") +
+  scale_y_continuous(
+    sec.axis = sec_axis(
+      ~ ./200000,
+      name = "Index")
+    ) +
+  theme_bw() +
+  theme(
+    panel.border = element_blank(),
+    axis.text.x= element_text(size = 11, angle=45, hjust=1)
+    )
+
 ```
 
 ```{r model_set_up}
@@ -157,8 +213,7 @@ for (i in 1:nrow(data.bed)) {
 ```
 
 ```{r fitness}
-time.start <- as.Date("2020-02-01")
-time.end <- as.Date("2020-10-01")
+
 p.death <- plot.cases(
   start = time.start, end = time.end, 
   method = "deaths", data = data
