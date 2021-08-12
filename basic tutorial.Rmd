@@ -18,36 +18,63 @@ font_import(
   pattern = "^Arial Narrow"
   )
 loadfonts(device = "postscript", quiet = TRUE)
-library(ggplot2)
-Sys.setlocale("LC_TIME","English")
+
 ```
 
 
 ```{r get_data}
 source("get data function.R")
 data <- get.data("Nation")
-time.start <- as.Date("2020-02-01")
-time.end <- as.Date("2020-10-01")
-data <- filter(data, date < time.end)
-data <- filter(data, date > time.start)
+data <- data[1:(nrow(data)-15),]
+```
 
+```{r}
+library(ggplot2)
+Sys.setlocale("LC_TIME","English")
 data.plot.each <- function(type, data.import) {
   if (type %in% c("Protest", "Lockdown", "schools_universities")) {
     data.import[[type]] <-
       data.import[[type]]/max(data.import[[type]])*20000
   }
-  data.value <- data.frame(
-  cbind(
-    as.character(data.import$date), 
-    data.import[[type]], 
-    rep(type, nrow(data.import)
-          )
-      )
+  data.value <- as.data.frame(
+    cbind(
+      as.character(data.import$date), 
+      data.import[,type], 
+      rep(type, nrow(data.import), stringsAsFactors=FALSE)
+      ), stringsAsFactors = FALSE
   )
   colnames(data.value) <- c("date", "value", "type")
-  data.value$date <- as.Date(data.value$date)
   return(data.value)
 }
+data.plot <- as.data.frame(
+  rbind(
+    data.plot.each("cases", data),
+    data.plot.each("deaths", data),
+    data.plot.each("Beds", data), stringsAsFactors=FALSE
+  ), stringsAsFactors = FALSE
+)
+data.plot$date <- as.Date(data.plot$date)
+data.plot$value <- as.numeric(data.plot$value)
+  
+ggplot(
+  data.plot, 
+  aes(x = date, y = value, colour = type)) +
+  geom_line() +
+  scale_x_date(date_breaks="6 week",date_labels="%d %b %y") +
+  theme_bw() +
+  theme(
+    panel.border = element_blank(),
+    axis.text.x= element_text(size = 11, angle=45, hjust=1)
+    )
+```
+
+```{r}
+time.start <- as.Date("2020-02-01")
+time.end <- as.Date("2020-10-01")
+data <- filter(data, date < time.end)
+data <- filter(data, date > time.start)
+
+
 
 data.plot.01 <- rbind(
   data.plot.each("Protest", data),
@@ -65,7 +92,7 @@ data.plot <- rbind(
 data.plot$value <- as.numeric(data.plot$value)
 data.plot$line <- "Observations"
 data.plot.all <- rbind(data.plot.01, data.plot)
-
+data.plot.all$date <- as.Date(data.plot.all$date)
 ggplot(
   data.plot.all, 
   aes(x = date, y = value, colour = type, linetype = line)) +
@@ -73,9 +100,10 @@ ggplot(
   scale_x_date(date_breaks="3 week",date_labels="%d %b") +
   scale_y_continuous(
     sec.axis = sec_axis(
-      ~ ./200000,
+      ~ ./20000,
       name = "Index")
     ) +
+  scale_linetype_manual(values = c('longdash', 'solid'))+
   theme_bw() +
   theme(
     panel.border = element_blank(),
@@ -179,7 +207,7 @@ reg <- lm(Beds ~ index + index2, data.impute)
 sigma <- sd(reg$residuals)
 coef <- reg$coefficients
 for (i in 1:nrow(data.bed)) {
-  seed <- 1234
+  set.seed <- 1234
   b <- round(
     as.numeric(coef[1]) + as.numeric(coef[2]) * data.bed$index[i]
     + as.numeric(coef[3]) * data.bed$index2[i] + rnorm(1, 0, sigma)
@@ -198,7 +226,7 @@ reg <- lm(inhospital ~ index , data.impute)
 sigma <- sd(reg$residuals)
 coef <- reg$coefficients
 for (i in 1:nrow(data.bed)) {
-  seed <- 1234
+  set.seed <- 1234
   b <- round(
     as.numeric(coef[1]) + as.numeric(coef[2]) * data.bed$index[i]
     + rnorm(1, 0, sigma/5)
@@ -226,67 +254,72 @@ p.beds <- plot.cases(
 
 ```{r add_react_prior}
 add.react <- function(plot) {
+  data.rt <- read.csv("./data/Rt.csv")
+  data.rt$date <- as.Date(data.rt$date)
   plot <- plot + 
     geom_rect(
       aes(
         xmin=as.Date('2020-05-01'), 
         xmax=as.Date('2020-06-01'), 
         ymin=0.445, ymax=0.725),
-      fill='#4169E1',alpha = 0.015) +
+      fill='#00BFFF',alpha = 0.015) +
     geom_rect(
       aes(
         xmin=as.Date('2020-05-01'), 
         xmax=as.Date('2020-06-01'), 
         ymin=0.555, ymax=0.575),
-      fill='#DAA520',alpha = 0.9) +
+      fill='#000080',alpha = 0.9) +
     geom_rect(
       aes(
         xmin=as.Date('2020-06-01'), 
         xmax=as.Date('2020-07-01'), 
         ymin=0.815, ymax=0.975),
-      fill='#4169E1',alpha = 0.015) +
+      fill='#00BFFF',alpha = 0.015) +
     geom_rect(
       aes(
         xmin=as.Date('2020-06-01'), 
         xmax=as.Date('2020-07-01'), 
         ymin=0.88, ymax=0.9),
-      fill='#DAA520',alpha = 0.9) +
+      fill='#000080',alpha = 0.9) +
     geom_rect(
       aes(
         xmin=as.Date('2020-07-24'), 
         xmax=as.Date('2020-08-11'), 
         ymin=1.2, ymax=1.4),
-      fill='#4169E1',alpha = 0.015) +
+      fill='#00BFFF',alpha = 0.015) +
     geom_rect(
       aes(
         xmin=as.Date('2020-07-24'), 
         xmax=as.Date('2020-08-11'), 
         ymin=1.29, ymax=1.31),
-      fill='#DAA520',alpha = 0.9) +  
+      fill='#000080',alpha = 0.9) +  
     geom_rect(
       aes(
         xmin=as.Date('2020-08-22'), 
         xmax=as.Date('2020-09-07'), 
         ymin=1.4, ymax=2.0),
-      fill='#4169E1',alpha = 0.015) +
+      fill='#00BFFF',alpha = 0.015) +
     geom_rect(
       aes(
         xmin=as.Date('2020-08-22'), 
         xmax=as.Date('2020-09-07'), 
         ymin=1.69, ymax=1.71),
-      fill='#DAA520',alpha = 0.9) +  
+      fill='#000080',alpha = 0.9) +  
     geom_rect(
       aes(
         xmin=as.Date('2020-09-18'), 
         xmax=as.Date('2020-09-26'), 
         ymin=0.7, ymax=1.5),
-      alpha = 0.015,fill='#4169E1') +
+      alpha = 0.015,fill='#00BFFF') +
     geom_rect(
       aes(
         xmin=as.Date('2020-09-18'), 
         xmax=as.Date('2020-09-26'), 
         ymin=1.05, ymax=1.07),
-      fill='#DAA520',alpha = 0.9) 
+      fill='#000080',alpha = 0.9) +
+    geom_ribbon(
+      aes(ymin=min, ymax=max, x=date), data = data.rt,
+    alpha = 0.3, fill = "#FF0000")
   return(plot)
 }
 
@@ -308,13 +341,18 @@ new.data.bed <- data.bed[,c("date", "Beds")]
 new.data.bed$type <- "Ventilated Bed (Observed)"
 new.data.bed$type[1:61] <- "Ventilated Bed (Imputation)"
 colnames(new.data.bed) <- c("date", "num", "type")
+new.data.hos <- data.bed[,c("date", "inhospital")]
+new.data.hos$type <- "In hospital (Observed)"
+new.data.hos$type[1:54] <- "In hospital (Imputation)"
+colnames(new.data.hos) <- c("date", "num", "type")
 new.data.death <- data.bed[,c("date", "deaths")]
 new.data.death$type <- "Death"
 colnames(new.data.death) <- c("date", "num", "type")
 new.data <- rbind(
   new.data.case[-nrow(new.data.case),],
   new.data.bed[-nrow(new.data.bed),],
-  new.data.death[-nrow(new.data.death),]
+  new.data.death[-nrow(new.data.death),],
+  new.data.hos[-nrow(new.data.hos),]
   )
 ```
 
@@ -324,21 +362,23 @@ new.data.temp <- rbind(
   filter(new.data, type == "Case")
 )
 p.death$infection + geom_line(
-  aes(x = date, y = num*30, colour = type), 
+  aes(x = date, y = num*8, colour = type), 
   lwd = 1, data = new.data.temp) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ ./30, 
-    name = "Observe")) 
+    sec.axis = sec_axis(~ ./8, 
+    name = "Observe")) +
+  theme(legend.position = "right")
 ```
 
 ```{r fig.cap="Simulation infection from daily on the Beds data until Oct 1st, 2020", fig.align='center'}
 new.data.temp <- filter(new.data, type != "Death")
 p.beds$infection + geom_line(
-  aes(x = date, y = num*15, colour = type), 
+  aes(x = date, y = num*4, colour = type), 
   lwd = 1, data = new.data.temp) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ ./15, name = "Observe")
-    )
+    sec.axis = sec_axis(~ ./4, name = "Observe")
+    ) +
+  theme(legend.position = "right")
 ```
 
 ```{r , fig.cap="Simulation reproduction number from death data until Oct 1st, 2020", fig.align='center'}
@@ -382,14 +422,21 @@ p.beds$obs <- ggplot() +
   geom_ribbon(
     aes(ymin=lower, ymax=upper, x=date), data = data.temp6,
     alpha = 0.4, fill = "#1A7796") + 
+  geom_line(
+    aes(x = date, y = num, colour = type), 
+    data = new.data.hos, lwd = 1
+  ) +
+  scale_color_manual(values=c('#FFA500','#00FA9A')) +
   geom_ribbon(
     aes(ymin=lower, ymax=upper, x=date), data = data.temp9,
     alpha = 0.2, fill = "#447D99") + 
   theme_bw() + guides(fill=F) + 
   theme(
-    panel.border = element_blank(),plot.margin=unit(c(2,2,1,1.5), 'lines'),
-    axis.text.x= element_text(size = 11, angle=45, hjust=1))
-
+    panel.border = element_blank(),
+    plot.margin=unit(c(2,2,1,1.5), 'lines',),
+    axis.text.x= element_text(size = 11, angle=45, hjust=1),
+    legend.position = "top"
+    )
 p.beds$obs <- p.beds$obs + theme(axis.title.x=element_blank())
 p.beds$obs
 ```
@@ -502,4 +549,126 @@ plot.cum.death
 plot.cum.beds
 ```
 
+```{r , fig.cap="Sampling Procentage of Simulation from Ventilated beds data until Oct 1st, 2020", fig.align='center'}
+data.bed.infection.median <- p.beds$infection$layers[[2]]$data
+data.bed.infection.median$median <- 
+  data$cases / data.bed.infection.median$median * 100 + 0.01
+data.bed.infection <- p.beds$infection$data
 
+data.bed.infection.30 <- filter(
+  data.bed.infection, level == "30"
+  )
+data.bed.infection.30$lower <- 
+  data$cases / data.bed.infection.30$lower * 100 + 0.01
+data.bed.infection.30$upper <- 
+  data$cases / data.bed.infection.30$upper * 100 + 0.01
+data.bed.infection.60 <- filter(
+  data.bed.infection, level == "60"
+  )
+data.bed.infection.60$lower <- 
+  data$cases / data.bed.infection.60$lower * 100 + 0.01
+data.bed.infection.60$upper <- 
+  data$cases / data.bed.infection.60$upper * 100 + 0.01
+data.bed.infection.95 <- filter(
+  data.bed.infection, level == "95"
+  )
+data.bed.infection.95$lower <- 
+  data$cases / data.bed.infection.95$lower * 100 + 0.01
+data.bed.infection.95$upper <- 
+  data$cases / data.bed.infection.95$upper * 100 + 0.01
+
+sampling.beds <- ggplot() + 
+  geom_line(
+    aes(date, median), data = data.bed.infection.median, 
+    lwd = 1, colour = "#102631") +
+  geom_ribbon(
+    aes(ymin=upper, ymax=lower, x=date), 
+    data = data.bed.infection.30,
+    alpha = 0.6, fill = "#236585") + 
+  geom_ribbon(
+    aes(ymin=upper, ymax=lower, x=date), 
+    data = data.bed.infection.60,
+    alpha = 0.4, fill = "#1A7796") + 
+  geom_ribbon(
+    aes(ymin=upper, ymax=lower, x=date), 
+    data = data.bed.infection.95,
+    alpha = 0.2, fill = "#447D99") + 
+  geom_hline(
+    aes(yintercept=100), 
+    colour="#990000", linetype="dashed") +
+  scale_x_date(date_breaks="3 week",date_labels="%d %b") +
+  scale_y_log10(
+    "Sampling Precentage (%)",
+    labels = scales :: comma) +
+  theme_bw() + guides(fill=F) + 
+  theme(
+    panel.border = element_blank(),
+    plot.margin=unit(c(2,2,1,1.5), 'lines',),
+    axis.text.x= element_text(size = 11, angle=45, hjust=1),
+    legend.position = "top",
+    axis.title.x=element_blank()
+    )
+sampling.beds
+```
+
+```{r , fig.cap="Sampling Procentage of Simulation from death data until Oct 1st, 2020", fig.align='center'}
+data.death.infection.median <- p.death$infection$layers[[2]]$data
+data.death.infection.median$median <- 
+  data$cases / data.death.infection.median$median * 100 + 0.01
+data.death.infection <- p.death$infection$data
+
+data.death.infection.30 <- filter(
+  data.death.infection, level == "30"
+  )
+data.death.infection.30$lower <- 
+  data$cases / data.death.infection.30$lower * 100 + 0.01
+data.death.infection.30$upper <- 
+  data$cases / data.death.infection.30$upper * 100 + 0.01
+data.death.infection.60 <- filter(
+  data.death.infection, level == "60"
+  )
+data.death.infection.60$lower <- 
+  data$cases / data.death.infection.60$lower * 100 + 0.01
+data.death.infection.60$upper <- 
+  data$cases / data.death.infection.60$upper * 100 + 0.01
+data.death.infection.95 <- filter(
+  data.death.infection, level == "95"
+  )
+data.death.infection.95$lower <- 
+  data$cases / data.death.infection.95$lower * 100 + 0.01
+data.death.infection.95$upper <- 
+  data$cases / data.death.infection.95$upper * 100 + 0.01
+
+sampling.death <- ggplot() + 
+  geom_line(
+    aes(date, median), data = data.death.infection.median, 
+    lwd = 1, colour = "#102631") +
+  geom_ribbon(
+    aes(ymin=upper, ymax=lower, x=date), 
+    data = data.death.infection.30,
+    alpha = 0.6, fill = "#236585") + 
+  geom_ribbon(
+    aes(ymin=upper, ymax=lower, x=date), 
+    data = data.death.infection.60,
+    alpha = 0.4, fill = "#1A7796") + 
+  geom_ribbon(
+    aes(ymin=upper, ymax=lower, x=date), 
+    data = data.death.infection.95,
+    alpha = 0.2, fill = "#447D99") + 
+  geom_hline(
+    aes(yintercept=100), 
+    colour="#990000", linetype="dashed") +
+  scale_x_date(date_breaks="3 week",date_labels="%d %b") +
+  scale_y_log10(
+    "Sampling Precentage (%)", 
+    labels = scales :: comma) +
+  theme_bw() + guides(fill=F) + 
+  theme(
+    panel.border = element_blank(),
+    plot.margin=unit(c(2,2,1,1.5), 'lines'),
+    axis.text.x= element_text(size = 11, angle=45, hjust=1),
+    legend.position = "top",
+    axis.title.x=element_blank()
+    )
+sampling.death
+```
