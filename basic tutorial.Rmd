@@ -161,9 +161,9 @@ plot.cases <- function(
     )
   } else if (method == "deaths_inacurate") {
       observation <- epiobs(
-        formula = deaths ~ 1 + inhospital,
+        formula = deaths ~ 1+inhospital,
         i2o = EuropeCovid2$inf2death, 
-        prior_intercept = normal(0, 1),
+        prior_intercept = normal(0, 0.3),
         link = scaled_logit(0.02)
         )
       method <- "deaths"
@@ -384,7 +384,7 @@ p.death$infection + geom_line(
 ```{r fig.cap="Simulation infection from daily on the Beds data until Oct 1st, 2020", fig.align='center'}
 new.data.temp <- filter(new.data, type != "Death")
 p.beds$infection + geom_line(
-  aes(x = date, y = num*4, fill = type), 
+  aes(x = date, y = num*4, colour = type), 
   lwd = 1, data = new.data.temp) +
   scale_y_continuous(
     sec.axis = sec_axis(~ ./4, name = "Observed")
@@ -628,38 +628,42 @@ trans.sampling(p.death$infection, data)
 
 
 ```{r}
-p.death.in$rt <- add.react(p.death.in$rt)
-
-new.data.infection <- rbind(
-  new.data.case,
-  new.data.death,
-  new.data.hos
-)
-p.death.in$infection <- p.death.in$infection + geom_line(
-  aes(x = date, y = num*4, fill = type), 
-  lwd = 1, data = new.data.infection) +
-  scale_y_continuous(
-    sec.axis = sec_axis(~ ./4, 
-    name = "Observed")) +
-  theme(legend.position = "right")
-
-p.death.in$cum <- add.cum(p.death.in$cum)
-
-p.death.in$obs <- p.death.in$obs + 
-  geom_bar(
-    aes(x = date, y = num, fill = type),
-    data = new.data.hos, stat = "identity"
-    )
+add.react(p.death.in$rt)
 ```
 
 
 
 ```{r, fig.align='center'}
-cowplot::plot_grid(
-  p.death.in$rt, p.death.in$obs,
-  p.death.in$infection, p.death.in$cum,
-  nrow = 2, ncol = 2
+new.data.infection <- rbind(
+  new.data.case,
+  new.data.death,
+  new.data.hos
 )
+p.death.in$infection + 
+  geom_line(
+    aes(x = date, y = num*10, colour = type), 
+    lwd = 1, data = new.data.infection) +
+  scale_y_continuous(
+      sec.axis = sec_axis(
+        ~ ./10, name = "Observed")
+      ) +
+  theme(legend.position = "right")
+```
+
+```{r, fig.align='center'}
+add.cum(p.death.in$cum)
+```
+
+```{r, fig.align='center'}
+p.death.in$obs + 
+  geom_line(
+    aes(x = date, y = num/5, colour = type),
+    data = new.data.hos, lwd = 1, stat = "identity") + 
+  scale_y_continuous(
+      sec.axis = sec_axis(
+        ~ ./0.2, name = "Observed")
+      ) +
+  theme(legend.position = "right")
 ```
 
 
