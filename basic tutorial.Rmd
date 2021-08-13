@@ -159,6 +159,14 @@ plot.cases <- function(
         prior_intercept = normal(0, 0.5),
         center = TRUE
     )
+  } else if (method == "deaths_inacurate") {
+      observation <- epiobs(
+        formula = deaths ~ 1 + inhospital,
+        i2o = EuropeCovid2$inf2death, 
+        prior_intercept = normal(0, 1),
+        link = scaled_logit(0.02)
+        )
+      method <- "deaths"
   }
   args <- list(
     rt=rt, inf=inf, obs=observation, 
@@ -197,7 +205,6 @@ plot.cases <- function(
 
 
 ```{r imputation}
-
 data.bed <- data
 data.bed$index <- 1:nrow(data)
 data.bed$index2 <- data.bed$index^2
@@ -249,6 +256,10 @@ p.death <- plot.cases(
 p.beds <- plot.cases(
   start = time.start, end = time.end, 
   method = "Beds", data = data.bed
+  )
+p.death.in <- plot.cases(
+  start = time.start, end = time.end, 
+  method = "deaths_inacurate", data = data.bed
   )
 ```
 
@@ -386,7 +397,7 @@ add.react(p.death$rt)
 ```
 
 ```{r reproduction_number, fig.cap="Simulation reproduction number from Ventilated beds data until Oct 1st, 2020", fig.align='center'}
-add.react(p.death$rt)
+add.react(p.beds$rt)
 ```
 
 ```{r observation, fig.cap="Fitness of obeservation from death data until Oct 1st, 2020", fig.align='center'}
@@ -537,138 +548,105 @@ add.cum <- function(p) {
     size = 5, colour = "green", shape = 18)
   return(p)
 }
-plot.cum.beds <- add.cum(p.beds$cum)
-plot.cum.death <- add.cum(p.death$cum) 
 ```
 
 ```{r , fig.cap="Cumulative simulated cases from death data until Oct 1st, 2020", fig.align='center'}
-plot.cum.death
+add.cum(p.death$cum)
 ```
 
 ```{r , fig.cap="Cumulative simulated cases from Ventilated beds data until Oct 1st, 2020", fig.align='center'}
-plot.cum.beds
+add.cum(p.beds$cum)
 ```
 
 ```{r , fig.cap="Sampling Procentage of Simulation from Ventilated beds data until Oct 1st, 2020", fig.align='center'}
-data.bed.infection.median <- p.beds$infection$layers[[2]]$data
-data.bed.infection.median$median <- 
-  data$cases / data.bed.infection.median$median * 100 + 0.01
-data.bed.infection <- p.beds$infection$data
+trans.sampling <- function(infection, data){
+  median <- infection$layers[[2]]$data
+  median$median <- data$cases / median$median * 100 + 0.01
+  infection.data <- infection$data
+  infection.data.30 <- filter(
+    infection.data, level == "30"
+  )
+  infection.data.30$lower <- 
+    data$cases / infection.data.30$lower * 100 + 0.01
+  infection.data.30$upper <- 
+    data$cases / infection.data.30$upper * 100 + 0.01
+  infection.data.60 <- filter(
+    infection.data, level == "60"
+  )
+  infection.data.60$lower <- 
+    data$cases / infection.data.60$lower * 100 + 0.01
+  infection.data.60$upper <- 
+    data$cases / infection.data.60$upper * 100 + 0.01
+  infection.data.95 <- filter(
+    infection.data, level == "95"
+  )
+  infection.data.95$lower <- 
+    data$cases / infection.data.95$lower * 100 + 0.01
+  infection.data.95$upper <- 
+    data$cases / infection.data.95$upper * 100 + 0.01
 
-data.bed.infection.30 <- filter(
-  data.bed.infection, level == "30"
-  )
-data.bed.infection.30$lower <- 
-  data$cases / data.bed.infection.30$lower * 100 + 0.01
-data.bed.infection.30$upper <- 
-  data$cases / data.bed.infection.30$upper * 100 + 0.01
-data.bed.infection.60 <- filter(
-  data.bed.infection, level == "60"
-  )
-data.bed.infection.60$lower <- 
-  data$cases / data.bed.infection.60$lower * 100 + 0.01
-data.bed.infection.60$upper <- 
-  data$cases / data.bed.infection.60$upper * 100 + 0.01
-data.bed.infection.95 <- filter(
-  data.bed.infection, level == "95"
-  )
-data.bed.infection.95$lower <- 
-  data$cases / data.bed.infection.95$lower * 100 + 0.01
-data.bed.infection.95$upper <- 
-  data$cases / data.bed.infection.95$upper * 100 + 0.01
+  sampling <- ggplot() + 
+    geom_line(
+      aes(date, median), data = median, 
+      lwd = 1, colour = "#102631") +
+    geom_ribbon(
+      aes(ymin=upper, ymax=lower, x=date), 
+      data = infection.data.30,
+      alpha = 0.6, fill = "#236585") + 
+    geom_ribbon(
+      aes(ymin=upper, ymax=lower, x=date), 
+      data = infection.data.60,
+      alpha = 0.4, fill = "#1A7796") + 
+    geom_ribbon(
+      aes(ymin=upper, ymax=lower, x=date), 
+      data = infection.data.95,
+      alpha = 0.2, fill = "#447D99") + 
+    geom_hline(
+      aes(yintercept=100), 
+      colour="#990000", linetype="dashed") +
+    scale_x_date(date_breaks="3 week",date_labels="%d %b") +
+    scale_y_log10(
+      "Sampling Precentage (%)",
+      labels = scales :: comma) +
+    theme_bw() + guides(fill=F) + 
+    theme(
+      panel.border = element_blank(),
+      plot.margin=unit(c(2,2,1,1.5), 'lines',),
+      axis.text.x= element_text(size = 11, angle=45, hjust=1),
+      legend.position = "top",
+      axis.title.x=element_blank()
+      )
+  return(sampling)
+}
 
-sampling.beds <- ggplot() + 
-  geom_line(
-    aes(date, median), data = data.bed.infection.median, 
-    lwd = 1, colour = "#102631") +
-  geom_ribbon(
-    aes(ymin=upper, ymax=lower, x=date), 
-    data = data.bed.infection.30,
-    alpha = 0.6, fill = "#236585") + 
-  geom_ribbon(
-    aes(ymin=upper, ymax=lower, x=date), 
-    data = data.bed.infection.60,
-    alpha = 0.4, fill = "#1A7796") + 
-  geom_ribbon(
-    aes(ymin=upper, ymax=lower, x=date), 
-    data = data.bed.infection.95,
-    alpha = 0.2, fill = "#447D99") + 
-  geom_hline(
-    aes(yintercept=100), 
-    colour="#990000", linetype="dashed") +
-  scale_x_date(date_breaks="3 week",date_labels="%d %b") +
-  scale_y_log10(
-    "Sampling Precentage (%)",
-    labels = scales :: comma) +
-  theme_bw() + guides(fill=F) + 
-  theme(
-    panel.border = element_blank(),
-    plot.margin=unit(c(2,2,1,1.5), 'lines',),
-    axis.text.x= element_text(size = 11, angle=45, hjust=1),
-    legend.position = "top",
-    axis.title.x=element_blank()
-    )
-sampling.beds
+trans.sampling(p.beds$infection, data)
 ```
 
 ```{r , fig.cap="Sampling Procentage of Simulation from death data until Oct 1st, 2020", fig.align='center'}
-data.death.infection.median <- p.death$infection$layers[[2]]$data
-data.death.infection.median$median <- 
-  data$cases / data.death.infection.median$median * 100 + 0.01
-data.death.infection <- p.death$infection$data
+trans.sampling(p.death$infection, data)
+```
 
-data.death.infection.30 <- filter(
-  data.death.infection, level == "30"
-  )
-data.death.infection.30$lower <- 
-  data$cases / data.death.infection.30$lower * 100 + 0.01
-data.death.infection.30$upper <- 
-  data$cases / data.death.infection.30$upper * 100 + 0.01
-data.death.infection.60 <- filter(
-  data.death.infection, level == "60"
-  )
-data.death.infection.60$lower <- 
-  data$cases / data.death.infection.60$lower * 100 + 0.01
-data.death.infection.60$upper <- 
-  data$cases / data.death.infection.60$upper * 100 + 0.01
-data.death.infection.95 <- filter(
-  data.death.infection, level == "95"
-  )
-data.death.infection.95$lower <- 
-  data$cases / data.death.infection.95$lower * 100 + 0.01
-data.death.infection.95$upper <- 
-  data$cases / data.death.infection.95$upper * 100 + 0.01
 
-sampling.death <- ggplot() + 
-  geom_line(
-    aes(date, median), data = data.death.infection.median, 
-    lwd = 1, colour = "#102631") +
-  geom_ribbon(
-    aes(ymin=upper, ymax=lower, x=date), 
-    data = data.death.infection.30,
-    alpha = 0.6, fill = "#236585") + 
-  geom_ribbon(
-    aes(ymin=upper, ymax=lower, x=date), 
-    data = data.death.infection.60,
-    alpha = 0.4, fill = "#1A7796") + 
-  geom_ribbon(
-    aes(ymin=upper, ymax=lower, x=date), 
-    data = data.death.infection.95,
-    alpha = 0.2, fill = "#447D99") + 
-  geom_hline(
-    aes(yintercept=100), 
-    colour="#990000", linetype="dashed") +
-  scale_x_date(date_breaks="3 week",date_labels="%d %b") +
-  scale_y_log10(
-    "Sampling Precentage (%)", 
-    labels = scales :: comma) +
-  theme_bw() + guides(fill=F) + 
-  theme(
-    panel.border = element_blank(),
-    plot.margin=unit(c(2,2,1,1.5), 'lines'),
-    axis.text.x= element_text(size = 11, angle=45, hjust=1),
-    legend.position = "top",
-    axis.title.x=element_blank()
+```{r, fig.align='center'}
+add.react(p.death.in$rt)
+```
+
+```{r, fig.align='center'}
+add.cum(p.death.in$cum)
+```
+
+```{r, fig.align='center'}
+p.death.in$obs + 
+  geom_bar(
+    aes(x = date, y = num, fill = type),
+    data = new.data.hos, stat = "identity"
     )
-sampling.death
+```
+
+```{r, fig.align='center'}
+p.death.in$cum
+```
+
+```{r, fig.align='center'}
+trans.sampling(p.death.in$infection, data)
 ```
