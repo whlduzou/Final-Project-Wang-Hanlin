@@ -377,17 +377,17 @@ p.death$infection + geom_line(
   lwd = 1, data = new.data.temp) +
   scale_y_continuous(
     sec.axis = sec_axis(~ ./8, 
-    name = "Observe")) +
+    name = "Observed")) +
   theme(legend.position = "right")
 ```
 
 ```{r fig.cap="Simulation infection from daily on the Beds data until Oct 1st, 2020", fig.align='center'}
 new.data.temp <- filter(new.data, type != "Death")
 p.beds$infection + geom_line(
-  aes(x = date, y = num*4, colour = type), 
+  aes(x = date, y = num*4, fill = type), 
   lwd = 1, data = new.data.temp) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ ./4, name = "Observe")
+    sec.axis = sec_axis(~ ./4, name = "Observed")
     ) +
   theme(legend.position = "right")
 ```
@@ -627,25 +627,41 @@ trans.sampling(p.death$infection, data)
 ```
 
 
-```{r, fig.align='center'}
-add.react(p.death.in$rt)
-```
+```{r}
+p.death.in$rt <- add.react(p.death.in$rt)
 
-```{r, fig.align='center'}
-add.cum(p.death.in$cum)
-```
+new.data.infection <- rbind(
+  new.data.case,
+  new.data.death,
+  new.data.hos
+)
+p.death.in$infection <- p.death.in$infection + geom_line(
+  aes(x = date, y = num*4, fill = type), 
+  lwd = 1, data = new.data.infection) +
+  scale_y_continuous(
+    sec.axis = sec_axis(~ ./4, 
+    name = "Observed")) +
+  theme(legend.position = "right")
 
-```{r, fig.align='center'}
-p.death.in$obs + 
+p.death.in$cum <- add.cum(p.death.in$cum)
+
+p.death.in$obs <- p.death.in$obs + 
   geom_bar(
     aes(x = date, y = num, fill = type),
     data = new.data.hos, stat = "identity"
     )
 ```
 
+
+
 ```{r, fig.align='center'}
-p.death.in$cum
+cowplot::plot_grid(
+  p.death.in$rt, p.death.in$obs,
+  p.death.in$infection, p.death.in$cum,
+  nrow = 2, ncol = 2
+)
 ```
+
 
 ```{r, fig.align='center'}
 trans.sampling(p.death.in$infection, data)
