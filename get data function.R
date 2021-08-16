@@ -39,62 +39,6 @@ linear.impute <- function(file, j) {
   return(file)
 }
 
-# #impute.vac <- function(data) {
-#   # UK firstly injected vaccination from 8th Dec 2020
-#   # for (d in row.names(data)) {
-#   #   differ = as.numeric(difftime(d, '2020-12-8'))
-#   #   if (differ < 0) {
-#   #     data[
-#   #       d, c(
-#   #         "newfirstVaccination", "cumfirstVaccination",
-#   #         "newsecondVaccination", "cumsecondVaccination"
-#   #       )] <- c(0,0,0,0)
-#   #   }
-#   # }
-#
-#   # linear impute the vaccination injection data
-#   # for (d in row.names(data)) {
-#   #   if (is.na(data[d, "cumfirstVaccination"])) {
-#   #     differ.all = as.numeric(difftime('2021-01-10', '2020-12-7'))
-#   #     differ = as.numeric(difftime(d, '2020-12-7'))
-#   #     cum <- data['2021-01-10', "cumfirstVaccination"] / differ.all
-#   #     data[d, "cumfirstVaccination"] <- round(cum * differ)
-#   #   }
-#   # }
-#   # for (d in row.names(data)) {
-#   #   if (is.na(data[d, "newfirstVaccination"])) {
-#   #     cum <- data[d, "cumfirstVaccination"]
-#   #     x <- ymd(d)
-#   #     day(x) <- day(d) - 1
-#   #     x <- as.character(x)
-#   #     data[d, "newfirstVaccination"] <- cum - data[x, "cumfirstVaccination"]
-#   #   }
-#   # }
-#   # for (d in row.names(data)) {
-#   #   if (is.na(data[d, "cumsecondVaccination"])) {
-#   #     if (difftime(d, '2021-01-04') > 0) {
-#   #       differ.all = as.numeric(difftime('2021-01-10', '2021-01-04'))
-#   #       differ = as.numeric(difftime(d, '2021-01-04'))
-#   #       cum <- data['2021-01-10', "cumsecondVaccination"] / differ.all
-#   #       data[d, "cumsecondVaccination"] <- round(cum * differ)
-#   #     } else {
-#   #       data[d, "cumsecondVaccination"] <- 0
-#   #     }
-#   #   }
-#   # }
-#   #
-#   # for (d in row.names(data)) {
-#   #   if (is.na(data[d, "newsecondVaccination"])) {
-#   #     cum <- data[d, "cumsecondVaccination"]
-#   #     x <- ymd(d)
-#   #     day(x) <- day(d) - 1
-#   #     x <- as.character(x)
-#   #     data[
-#   #       d, "newsecondVaccination"
-#   #     ] <- cum - data[x, "cumsecondVaccination"]
-#   #   }
-#   # }
-# #}
 
 add.policy <- function(data){
   library(dplyr)
@@ -202,81 +146,8 @@ add.policy <- function(data){
       data[d,"schools_universities"] <- 0.3
     }
   }
-
-  data$LRI <- 0
-  data$LRE <- 0
-  data <- arrange(data, date)
-  # adding the policy data
-  logit <- function(date_now, date_set, r=0.2) {
-    dif <- as.numeric(difftime(date_now ,date_set))
-    if (dif < 0) {
-      return(0)
-    } else if(dif == 0) {
-      return(1)
-    } else {
-      round(1 - 0.1*exp(r*dif)/(0.9 + 0.1*exp(r*dif)),1)
-    }
-  }
-  for (d in 1:nrow(data)) {
-    date <- data$date[d]
-    if (date >= '2020-03-21') {
-      data[d,"schools_universities"] <- 1
-    }
-    if (date >= '2020-03-23') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-03-23', r=0.01)
-    }
-    if (date >= '2020-03-26') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-03-26', r=0.01)
-    }
-    if (date >= '2020-04-16') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-04-16', r=0.5)
-    }
-    if (date >= '2020-06-01') {
-      data[d,"LRE"] <- data[d,"LRE"] + logit(date, '2020-06-01')*0.25
-      data[d,"schools_universities"] <- 0.7
-    }
-    if (date >= '2020-06-15') {
-      data[d,"LRE"] <- data[d,"LRE"] + logit(date, '2020-06-15')*0.25
-    }
-    if (date >= '2020-07-04') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-07-04')*0.25
-      data[d,"LRE"] <- data[d,"LRE"] + logit(date, '2020-07-04')*0.25
-    }
-    if (date >= '2020-08-03') {
-      data[d,"LRE"] <- data[d,"LRE"] + logit(date, '2020-08-03')*0.5
-    }
-    if (date >= '2020-08-14') {
-      data[d,"LRE"] <- data[d,"LRE"] + logit(date, '2020-08-14')*0.5
-    }
-    if (date >= '2020-09-14') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-09-14')*0.25
-    }
-    if (date >= '2020-10-14') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-10-14')*0.5
-    }
-    if (date >= '2020-11-05') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-11-05')
-    }
-    if (date >= '2020-11-24') {
-      data[d,"LRE"] <- data[d,"LRE"] + logit(date, '2020-11-24')
-    }
-    if (date >= '2020-12-02') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-12-02')
-    }
-    if (date >= '2020-12-15') {
-      data[d,"LRE"] <- data[d,"LRE"] + logit(date, '2020-12-15')
-    }
-    if (date >= '2020-12-21') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-12-21')
-    }
-    if (date >= '2020-12-26') {
-      data[d,"LRI"] <- data[d,"LRI"] + logit(date, '2020-12-26')
-    }
-  }
   return(data)
 }
-
-
 
 
 get.env.data <- function(AREA_NAME) {
@@ -350,11 +221,6 @@ get.covid.data <- function(AREA_NAME) {
     # Patients adimitted to hospital
     hospital = "newAdmissions",
     inhospital = "hospitalCases",
-    #newfirstVaccination = "newPeopleVaccinatedFirstDoseByPublishDate",
-    #cumfirstVaccination = "cumPeopleVaccinatedFirstDoseByPublishDate",
-    #newsecondVaccination = "newPeopleVaccinatedSecondDoseByPublishDate",
-    #cumsecondVaccination = "cumPeopleVaccinatedSecondDoseByPublishDate",
-    #newVirusTests = "newPillarTwoTestsByPublishDate",
     # Patients in mechanical ventilation beds
     Beds = "covidOccupiedMVBeds"
   )

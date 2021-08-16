@@ -125,7 +125,6 @@ plot.cases <- function(
       min(data$inhospital, na.rm = TRUE))/(
         max(data$inhospital, na.rm = TRUE) - 
           min(data$inhospital, na.rm = TRUE))
-  data$I <- data$LRI - data$LRE
   # reproduction number
   rt <- epirt(
    formula = R(Nation, date) ~ 1 + Protest +
