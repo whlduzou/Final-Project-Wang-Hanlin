@@ -84,6 +84,10 @@ plot.cases <- function(method, data) {
   p5 <- plot_infections(
     fm, cumulative = TRUE, step = T, levels = c(30, 60, 95)
     )
-  return(list(prior = p1, rt = p2, obs = p3, infection = p4, cum = p5))
+  return(
+    list(
+      prior = p1, rt = p2, obs = p3, infection = p4, cum = p5
+      )
+    )
 }
 ```
