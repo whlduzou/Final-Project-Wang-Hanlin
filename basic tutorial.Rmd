@@ -59,14 +59,16 @@ data.plot$value <- as.numeric(data.plot$value)
 ggplot(
   data.plot, 
   aes(x = date, y = value, colour = type)) +
-  geom_line(lwd = 1.3) +
+  geom_line(lwd = 1.1) +
   scale_x_date(date_breaks="6 week",date_labels="%d %b %y") +
   theme_bw() + labs(x = "", y = "") +
   theme(
     panel.border = element_blank(),
     text = element_text(size=20),
     axis.text.x= element_text(size = 15, angle=45, hjust=1),
-    axis.text.y= element_text(size = 15)
+    axis.text.y= element_text(size = 15),
+    legend.position="right",
+    legend.justification="top"
     )
 ```
 
@@ -75,8 +77,6 @@ time.start <- as.Date("2020-02-01")
 time.end <- as.Date("2020-10-01")
 data <- filter(data, date < time.end)
 data <- filter(data, date > time.start)
-
-
 
 data.plot.01 <- rbind(
   data.plot.each("Protest", data),
@@ -95,6 +95,14 @@ data.plot$value <- as.numeric(data.plot$value)
 data.plot$line <- "Observations"
 data.plot.all <- rbind(data.plot.01, data.plot)
 data.plot.all$date <- as.Date(data.plot.all$date)
+
+for (i in 1:nrow(data.plot.all)){
+  if (data.plot.all$type[i] == "schools_universities"){
+    data.plot.all$type[i] = "schools
+universities"
+  }
+}
+
 ggplot(
   data.plot.all, 
   aes(x = date, y = value, colour = type, linetype = line)) +
@@ -105,7 +113,7 @@ ggplot(
       ~ ./20000,
       name = "")
     ) +
-  scale_linetype_manual(values = c('longdash', 'solid'))+
+  scale_linetype_manual(values = c('dotted', 'solid'))+
   theme_bw() +
   labs(x = "", y = "") +
   theme(
@@ -113,7 +121,9 @@ ggplot(
     axis.text.x= element_text(size = 15, angle=45, hjust=1),
     axis.text.y= element_text(size = 15),
     legend.text = element_text(size = 18),
-    legend.title = element_text(size = 20)
+    legend.title = element_text(size = 20),
+    legend.position="right",
+    legend.justification="top"
     )
 ```
 
@@ -346,7 +356,8 @@ add.react <- function(plot) {
     axis.text.y= element_text(size = 15),
     legend.text = element_text(size = 18),
     legend.title = element_text(size = 20),
-    legend.position = "right"
+    legend.position = "right",
+    legend.justification="top"
     )
   return(plot)
 }
@@ -366,12 +377,16 @@ new.data.case <- data.bed[,c("date", "cases")]
 new.data.case$type <- "Case"
 colnames(new.data.case) <- c("date", "num", "type")
 new.data.bed <- data.bed[,c("date", "Beds")]
-new.data.bed$type <- "Ventilated Bed (Observed)"
-new.data.bed$type[1:61] <- "Ventilated Bed (Imputation)"
+new.data.bed$type <- "Ventilated Bed
+(Observed)"
+new.data.bed$type[1:61] <- "Ventilated Bed
+(Imputation)"
 colnames(new.data.bed) <- c("date", "num", "type")
 new.data.hos <- data.bed[,c("date", "inhospital")]
-new.data.hos$type <- "In hospital (Observed)"
-new.data.hos$type[1:54] <- "In hospital (Imputation)"
+new.data.hos$type <- "In hospital
+(Observed)"
+new.data.hos$type[1:54] <- "In hospital
+(Imputation)"
 colnames(new.data.hos) <- c("date", "num", "type")
 new.data.death <- data.bed[,c("date", "deaths")]
 new.data.death$type <- "Death"
@@ -394,15 +409,18 @@ p.death$infection + geom_line(
   lwd = 1, data = new.data.temp) +
   scale_y_continuous(
     sec.axis = sec_axis(~ ./8, 
-    name = "Observed")) +
+    name = "")) +
   labs(x = "", y = "") +
   theme(
     panel.border = element_blank(),
-    axis.text.x= element_text(size = 15, angle=45, hjust=1),
-    axis.text.y= element_text(size = 15),
+    axis.text.x = element_text(size = 15, angle=45, hjust=1),
+    axis.text.y = element_text(size = 15),
+    axis.title = element_text(
+      size = 60, colour = "blue", face = "bold"),
     legend.text = element_text(size = 18),
     legend.title = element_text(size = 20),
-    legend.position = "right"
+    legend.position = "right",
+    legend.justification="top"
     )
 ```
 
@@ -412,8 +430,9 @@ p.beds$infection + geom_line(
   aes(x = date, y = num*4, colour = type), 
   lwd = 1, data = new.data.temp) +
   scale_y_continuous(
-    sec.axis = sec_axis(~ ./4, name = "Observed")
+    sec.axis = sec_axis(~ ./4, name = "")
     ) +
+  scale_x_date(breaks = '4 weeks',date_labels="%d %b") +
   labs(x = "", y = "") +
   theme(
     panel.border = element_blank(),
@@ -421,8 +440,9 @@ p.beds$infection + geom_line(
     axis.text.y= element_text(size = 15),
     legend.text = element_text(size = 18),
     legend.title = element_text(size = 20),
-    legend.position = "right"
-    )
+    legend.position="right",
+    legend.justification="top",
+    legend.key.height=unit(1.8,"line"))
 ```
 
 ```{r , fig.cap="Simulation reproduction number from death data until Oct 1st, 2020", fig.align='center'}
@@ -434,7 +454,15 @@ add.react(p.beds$rt)
 ```
 
 ```{r observation, fig.cap="Fitness of obeservation from death data until Oct 1st, 2020", fig.align='center'}
-p.death$obs
+p.death$obs +   theme(
+    panel.border = element_blank(),
+    axis.text.x= element_text(size = 15, angle=45, hjust=1),
+    axis.text.y= element_text(size = 15),
+    legend.text = element_text(size = 18),
+    legend.title = element_text(size = 20),
+    legend.position = "right",
+    legend.justification="top"
+    )
 ```
 
 ```{r , fig.cap="Fitness of obeservation from Ventilated beds data until Oct 1st, 2020", fig.align='center'}
@@ -459,7 +487,7 @@ p.beds$obs <- ggplot() +
   scale_x_date(date_breaks="3 week",date_labels="%d %b") +
     scale_fill_manual(
     values=c("#006400","#8B3E2F")) + 
-  scale_y_continuous(" ") +
+  scale_y_continuous("") +
   geom_ribbon(
     aes(ymin=lower, ymax=upper, x=date), data = data.temp,
     alpha = 0.6, fill = "#236585") + 
@@ -482,7 +510,8 @@ p.beds$obs <- ggplot() +
     axis.text.y= element_text(size = 15),
     legend.text = element_text(size = 18),
     legend.title = element_text(size = 20),
-    legend.position = "right"
+    legend.position = "right",
+    legend.justification="top"
     )
 p.beds$obs
 ```
@@ -588,7 +617,8 @@ add.cum <- function(p) {
     axis.text.y= element_text(size = 15),
     legend.text = element_text(size = 18),
     legend.title = element_text(size = 20),
-    legend.position = "right"
+    legend.position = "right",
+    legend.justification="top"
     )
   return(p)
 }
@@ -656,11 +686,9 @@ trans.sampling <- function(infection, data){
     labs(x = "", y = "") +
     theme(
       panel.border = element_blank(),
+      axis.title = element_text(size = 15),
       axis.text.x= element_text(size = 15, angle=45, hjust=1),
       axis.text.y= element_text(size = 15),
-      legend.text = element_text(size = 18),
-      legend.title = element_text(size = 20),
-      legend.position = "right"
     )
   return(sampling)
 }
@@ -691,16 +719,18 @@ p.death.in$infection +
     lwd = 1, data = new.data.infection) +
   scale_y_continuous(
       sec.axis = sec_axis(
-        ~ ./10, name = "Observed")
+        ~ ./10, name = "")
       ) +
   labs(x = "", y = "") +
+  scale_x_date(breaks = '4 weeks',date_labels="%d %b") +
   theme(
     panel.border = element_blank(),
     axis.text.x= element_text(size = 15, angle=45, hjust=1),
     axis.text.y= element_text(size = 15),
     legend.text = element_text(size = 18),
     legend.title = element_text(size = 20),
-    legend.position = "right"
+    legend.position = "right",
+    legend.justification="top"
     )
 ```
 
@@ -715,16 +745,18 @@ p.death.in$obs +
     data = new.data.hos, lwd = 1, stat = "identity") + 
   scale_y_continuous(
       sec.axis = sec_axis(
-        ~ ./0.2, name = "Observed")
+        ~ ./0.2, name = "")
       ) +
   labs(x = "", y = "") +
+  scale_x_date(breaks = '4 weeks',date_labels="%d %b") +
   theme(
     panel.border = element_blank(),
     axis.text.x= element_text(size = 15, angle=45, hjust=1),
     axis.text.y= element_text(size = 15),
     legend.text = element_text(size = 18),
     legend.title = element_text(size = 20),
-    legend.position = "right"
+    legend.position = "right",
+    legend.justification="top"
     )
 ```
 
