@@ -213,9 +213,11 @@ plot.cases <- function(
     fm, levels = c(30, 60, 95), step = T, 
     cumulative = TRUE
     )
+  p6 <- plot(fm, par_models = "R", par_types = "fixed")
   return(
     list(
-      prior = p1, rt = p2, obs = p3, infection = p4, cum = p5
+      prior = p1, rt = p2, obs = p3, 
+      infection = p4, cum = p5, effect = p6
       )
     )
 }
@@ -762,4 +764,8 @@ p.death.in$obs +
 
 ```{r, fig.align='center'}
 trans.sampling(p.death.in$infection, data)
+```
+
+```{r, fig.align='center'}
+p.beds$effect
 ```
