@@ -361,7 +361,6 @@ add.react <- function(plot) {
     )
   return(plot)
 }
-
 ```
 
 ```{r , fig.cap="Prior reproduction number until Oct 1st, 2020", fig.align='center'}
