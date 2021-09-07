@@ -213,7 +213,7 @@ plot.cases <- function(
     fm, levels = c(30, 60, 95), step = T, 
     cumulative = TRUE
     )
-  p6 <- plot(fm, par_models = "R", par_types = "fixed")
+  p6 <- fm
   return(
     list(
       prior = p1, rt = p2, obs = p3, 
