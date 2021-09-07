@@ -767,5 +767,10 @@ trans.sampling(p.death.in$infection, data)
 ```
 
 ```{r, fig.align='center'}
-p.beds$effect
+beta <- as.matrix(
+  p.beds$effect, par_models = "R", par_types = "fixed"
+  )
+labels <- c("Protest", "Schools and Universities", "Lock-down")
+colnames(beta) <- c("Intercept", labels)
+bayesplot::mcmc_intervals(beta)
 ```
